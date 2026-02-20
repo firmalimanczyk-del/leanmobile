@@ -1,87 +1,117 @@
 // ============================================================
-// app/api/auth/login/route.ts — Proxy logowania do Leantime
-// Serwer wykonuje pełny flow GET+POST, rozwiązując problem CORS/cookies
+// app/api/auth/login/route.ts
+// Serwer wykonuje pełny GET+POST do Leantime, naprawiając CORS i cross-domain cookies
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const LEANTIME_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const LEANTIME_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+
+function extractSessionCookie(setCookieHeader: string): string {
+    // set-cookie może wyglądać np.:
+    //   "PHPSESSID=abc123; path=/; HttpOnly"
+    //   "leantime_session=xyz; path=/; SameSite=Strict; Secure"
+    // Chcemy tylko "NAZWACIAST=WARTOŚĆ" bez atrybutów
+    if (!setCookieHeader) return '';
+    const parts = setCookieHeader.split(','); // wiele ciasteczek oddzielonych przecinkiem
+    const sessions = parts
+        .map(p => p.trim().split(';')[0].trim())    // weź tylko name=value
+        .filter(p => p.includes('=') && !p.startsWith('path') && !p.startsWith('expires'));
+    return sessions.join('; ');
+}
 
 export async function POST(req: NextRequest) {
     try {
         const { email, password } = await req.json();
         if (!email || !password) {
-            return NextResponse.json({ ok: false, error: 'Brak danych logowania' }, { status: 400 });
+            return NextResponse.json({ ok: false, error: 'Brak danych' }, { status: 400 });
         }
 
-        // Krok 1: GET strony logowania — pobierz PHPSESSID i ukryte pola formularza
+        // ── Krok 1: GET strony logowania → sesja + ukryte pola ─────────
         const getRes = await fetch(`${LEANTIME_URL}/auth/login`, {
-            headers: { 'User-Agent': 'LeanMobile/1.0' },
+            headers: { 'User-Agent': 'LeanMobile/1.0', Accept: 'text/html' },
         });
+
         const html = await getRes.text();
-        const ltCookieRaw = getRes.headers.get('set-cookie') || '';
+        const sessionFromGet = extractSessionCookie(getRes.headers.get('set-cookie') || '');
 
-        // Wyciągnij wartość ciasteczka sesji (np. "PHPSESSID=abc123")
-        const ltSessionCookie = ltCookieRaw.split(';')[0];
-
-        // Sparsuj ukryte pola HTML (CSRF tokeny itp.)
+        // Sparsuj ukryte pola formularza (CSRF, tokeny itp.)
         const hiddenFields: Record<string, string> = {};
         const re = /<input[^>]*type\s*=\s*["']hidden["'][^>]*>/gi;
-        let match;
-        while ((match = re.exec(html)) !== null) {
-            const nameMatch = match[0].match(/name\s*=\s*["']([^"']+)["']/);
-            const valMatch = match[0].match(/value\s*=\s*["']([^"']*?)["']/);
-            if (nameMatch) hiddenFields[nameMatch[1]] = valMatch ? valMatch[1] : '';
+        let m;
+        while ((m = re.exec(html)) !== null) {
+            const nm = m[0].match(/name\s*=\s*["']([^"']+)["']/);
+            const vm = m[0].match(/value\s*=\s*["']([^"']*?)["']/);
+            if (nm) hiddenFields[nm[1]] = vm ? vm[1] : '';
         }
 
-        // Zbuduj body formularza
+        // ── Krok 2: POST do Leantime z sesjąi powodem ──────────────────
         let formBody = `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
         for (const [k, v] of Object.entries(hiddenFields)) {
             formBody += `&${encodeURIComponent(k)}=${encodeURIComponent(v)}`;
         }
 
-        // Krok 2: POST do Leantime z sesją z kroku 1
         const postRes = await fetch(`${LEANTIME_URL}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'User-Agent': 'LeanMobile/1.0',
-                ...(ltSessionCookie ? { Cookie: ltSessionCookie } : {}),
+                Accept: 'text/html,application/xhtml+xml',
+                ...(sessionFromGet ? { Cookie: sessionFromGet } : {}),
             },
             body: formBody,
-            redirect: 'manual', // nie podążaj za redirectem — analizuj sami
+            redirect: 'manual',
         });
 
+        const postStatus = postRes.status;
         const location = postRes.headers.get('location') || '';
-        const postSetCookie = postRes.headers.get('set-cookie') || '';
-        const status = postRes.status;
+        const sessionFromPost = extractSessionCookie(postRes.headers.get('set-cookie') || '');
 
-        // Sprawdź czy logowanie się udało (Leantime robi redirect 302 do /dashboard)
+        // ── Określ czy logowanie się udało ─────────────────────────────
         let ok = false;
-        if (location.includes('/dashboard') || location.includes('/tickets')) ok = true;
-        else if ((status === 302 || status === 301) && location && !location.includes('/auth/')) ok = true;
-        else if (postRes.ok) {
-            const body = await postRes.text().catch(() => '');
-            if (!body.includes('loginForm') && !body.includes('name="password"') && !body.includes('notification-error')) {
+        let debugReason = '';
+
+        if (location.includes('/dashboard') || location.includes('/tickets') || location.includes('/projects')) {
+            ok = true;
+            debugReason = 'redirect_to_dashboard';
+        } else if ((postStatus === 302 || postStatus === 301) && location && !location.includes('/auth/')) {
+            ok = true;
+            debugReason = 'redirect_not_auth';
+        } else if (postStatus === 200) {
+            const body = await postRes.text();
+            if (!body.includes('name="password"') && !body.includes('notification-error') && !body.includes('loginForm')) {
                 ok = true;
+                debugReason = 'no_login_form_or_error';
+            } else {
+                debugReason = 'still_on_login_page';
             }
+        } else {
+            debugReason = `unexpected_status_${postStatus}`;
         }
 
         const headers = new Headers({ 'Content-Type': 'application/json' });
 
         if (ok) {
-            // Zapisz sesję Leantime w naszym własnym ciasteczku na domenie Railway
-            // (bo ciasteczka projekty.limanczyk.pl nie działają na railway.app)
-            const sessionValue = (postSetCookie || ltSessionCookie).split(';')[0];
-            headers.set(
-                'set-cookie',
-                `lt_sess=${encodeURIComponent(sessionValue)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400`
-            );
+            // Użyj sesji z POST (jeśli dostępna, Leantime może wydać nowy PHPSESSID po zalogowaniu)
+            const sessionToStore = sessionFromPost || sessionFromGet;
+            if (sessionToStore) {
+                headers.set(
+                    'set-cookie',
+                    `lt_sess=${encodeURIComponent(sessionToStore)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400`
+                );
+            }
         }
 
-        return new NextResponse(JSON.stringify({ ok }), { status: 200, headers });
+        // W trybie dev, dodaj debug info
+        const isDev = process.env.NODE_ENV !== 'production';
+        const responseData = isDev
+            ? { ok, debug: { postStatus, location, sessionFromGet: !!sessionFromGet, sessionFromPost: !!sessionFromPost, hiddenFieldKeys: Object.keys(hiddenFields), debugReason } }
+            : { ok };
+
+        return new NextResponse(JSON.stringify(responseData), { status: 200, headers });
     } catch (err) {
         const message = err instanceof Error ? err.message : 'Błąd serwera';
+        console.error('[auth/login] Error:', message);
         return NextResponse.json({ ok: false, error: message }, { status: 500 });
     }
 }
