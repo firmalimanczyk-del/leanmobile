@@ -45,7 +45,17 @@ export default function QuickTaskSheet({ onClose }: Props) {
     const [saving, setSaving] = useState(false);
     const titleRef = useRef<HTMLInputElement>(null);
 
+    // Aktywne projekty do wyboru
+    const activeProjects = allProjects.filter(p => {
+        const s = p.state != null ? +p.state : 0;
+        return s !== 1 && s !== -1 && p.status !== 'closed' && p.status !== 'archived';
+    });
     const defaultProject = getDefaultProject(allProjects);
+    const [selectedProjectId, setSelectedProjectId] = useState<string>(
+        defaultProject ? String(defaultProject.id) : ''
+    );
+
+    const selectedProject = activeProjects.find(p => String(p.id) === selectedProjectId) || defaultProject;
 
     useEffect(() => {
         // Auto-focus na tytule po otwarciu
@@ -62,7 +72,7 @@ export default function QuickTaskSheet({ onClose }: Props) {
             const result = await apiAddTask({
                 headline: t,
                 description: desc.trim() || '',
-                projectId: defaultProject ? String(defaultProject.id) : '',
+                projectId: selectedProjectId || '',
                 editorId: myUserId || '',
                 userId: myUserId || '',
                 priority: 'medium',
@@ -78,8 +88,8 @@ export default function QuickTaskSheet({ onClose }: Props) {
                 id: (result as { id?: string | number })?.id || `temp-${Date.now()}`,
                 headline: t,
                 description: desc.trim(),
-                projectId: defaultProject?.id,
-                projectName: defaultProject?.name || defaultProject?.projectName,
+                projectId: selectedProjectId || selectedProject?.id,
+                projectName: selectedProject?.name || selectedProject?.projectName,
                 editorId: myUserId,
                 userId: myUserId,
                 priority: 'medium',
@@ -101,7 +111,7 @@ export default function QuickTaskSheet({ onClose }: Props) {
         if (e.key === 'Escape') onClose();
     };
 
-    const pName = defaultProject?.name || defaultProject?.projectName || '—';
+    const pName = selectedProject?.name || selectedProject?.projectName || '—';
     const deadline15 = (() => {
         const d = new Date(); d.setMinutes(d.getMinutes() + 15);
         return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
@@ -137,6 +147,21 @@ export default function QuickTaskSheet({ onClose }: Props) {
                         maxLength={200}
                         autoComplete="off"
                     />
+                    {/* Wybór projektu */}
+                    {activeProjects.length > 1 && (
+                        <select
+                            className={cssSheet.projectSelect}
+                            value={selectedProjectId}
+                            onChange={e => setSelectedProjectId(e.target.value)}
+                            disabled={saving}
+                        >
+                            {activeProjects.map(p => (
+                                <option key={p.id} value={String(p.id)}>
+                                    📁 {p.name || p.projectName}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                     <textarea
                         className={cssSheet.descInput}
                         placeholder="Krótki opis (opcjonalnie)..."
