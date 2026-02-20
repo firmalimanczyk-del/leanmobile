@@ -16,7 +16,12 @@ import AddUpdateScreen from '@/components/screens/AddUpdateScreen';
 import Toast from '@/components/ui/Toast';
 
 export default function App() {
-  const { currentScreen, myUserId, setUser, myUserName, myUserEmail, setStatusList, setAllProjects, setAllUsers } = useAppStore();
+  const { currentScreen, myUserId, setUser, myUserName, myUserEmail, theme, setStatusList, setAllProjects, setAllUsers } = useAppStore();
+
+  // Zastosuj motyw przy starcie i przy każdej zmianie
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     if (!myUserId) return;

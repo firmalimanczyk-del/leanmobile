@@ -27,6 +27,10 @@ interface AppState {
     myUserName: string;
     myUserEmail: string;
 
+    // ── Motyw
+    theme: 'light' | 'dark';
+    toggleTheme: () => void;
+
     // ── Dane pobrane z API
     allUsers: LtUser[];
     allProjects: LtProject[];
@@ -93,6 +97,11 @@ function loadUser() {
     };
 }
 
+function loadTheme(): 'light' | 'dark' {
+    if (typeof window === 'undefined') return 'light';
+    return (localStorage.getItem('lt_theme') as 'light' | 'dark') || 'light';
+}
+
 // ─── Store ───────────────────────────────────────────────────
 
 const saved = typeof window !== 'undefined' ? loadUser() : { id: null, name: '', email: '' };
@@ -102,6 +111,14 @@ export const useAppStore = create<AppState>((set, get) => ({
     myUserId: saved.id,
     myUserName: saved.name,
     myUserEmail: saved.email,
+
+    theme: loadTheme(),
+    toggleTheme: () => {
+        const next = get().theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('lt_theme', next);
+        document.documentElement.setAttribute('data-theme', next);
+        set({ theme: next });
+    },
 
     allUsers: [],
     allProjects: [],

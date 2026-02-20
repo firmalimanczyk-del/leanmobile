@@ -194,17 +194,17 @@
 
 .todoCard.overdue {
     border-left-color: var(--red);
-    background: #fff5f5;
+    background: var(--overdue-bg);
 }
 
 .todoCard.thisweek {
     border-left-color: var(--amber);
-    background: #fffbf5;
+    background: var(--thisweek-bg);
 }
 
 .todoCard.later {
     border-left-color: var(--purple);
-    background: #faf5ff;
+    background: var(--later-bg);
 }
 
 .todoProject {
@@ -437,7 +437,7 @@
     padding: 8px 14px;
     border-radius: var(--r-full);
     border: 2px solid var(--border);
-    background: #fff;
+    background: var(--card);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -488,7 +488,7 @@
     padding: 11px 13px;
     border-radius: var(--r-sm);
     border: 1.5px solid var(--border);
-    background: #fff;
+    background: var(--card);
     color: var(--text);
     outline: none;
     transition: border-color var(--t-mid);
@@ -572,7 +572,7 @@
     padding: 8px 14px;
     border-radius: var(--r-sm);
     border: 1.5px solid var(--border);
-    background: #fff;
+    background: var(--card);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -582,6 +582,203 @@
 
 .prioOpt:active {
     transform: scale(0.97);
+}
+
+/* ── Filter Bar (B) ── */
+.filterBar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: slideDown 0.18s ease;
+}
+
+.filterRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+}
+
+.filterRow::-webkit-scrollbar {
+    display: none;
+}
+
+.filterLabel {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 48px;
+}
+
+.filterChip {
+    padding: 5px 12px;
+    border-radius: var(--r-full);
+    border: 1.5px solid var(--border);
+    background: var(--card-2);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-3);
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all var(--t-fast);
+}
+
+.filterChip:active {
+    transform: scale(0.95);
+}
+
+.filterChipActive {
+    background: var(--dark);
+    color: #fff;
+    border-color: var(--dark);
+}
+
+.filterSortBtn {
+    padding: 5px 12px;
+    border-radius: var(--r-full);
+    border: 1.5px solid var(--border);
+    background: var(--card-2);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-3);
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all var(--t-fast);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.filterSortBtnActive {
+    background: var(--amber);
+    color: #fff;
+    border-color: var(--amber);
+}
+
+.filterSelect {
+    flex: 1;
+    min-width: 100px;
+    padding: 5px 10px;
+    border-radius: var(--r-full);
+    border: 1.5px solid var(--border);
+    background: var(--card-2);
+    color: var(--text-2);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+.filterClear {
+    padding: 5px 10px;
+    border-radius: var(--r-full);
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--amber);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* ── Bottom Sheet (D) ── */
+.sheetOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    max-width: 540px;
+    margin: 0 auto;
+}
+
+.sheetBackdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    animation: backdropIn 0.2s ease;
+}
+
+.sheet {
+    position: relative;
+    background: var(--card);
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    padding: 8px 0 calc(var(--safe-bottom) + 16px);
+    animation: sheetUp 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.sheetHandle {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    margin: 0 auto 12px;
+}
+
+.sheetTitle {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0 16px 8px;
+}
+
+.sheetItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: background var(--t-fast);
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.sheetItem:active {
+    background: var(--card-2);
+}
+
+.sheetDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sheetItemLabel {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+}
+
+.sheetItemCheck {
+    font-size: 16px;
+    color: var(--amber);
+}
+
+.sheetItemSaving {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 /* ── Updates ── */

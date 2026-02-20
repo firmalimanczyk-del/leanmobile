@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ── Reset & Base ── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -12,61 +14,86 @@
   --font: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   /* Brand */
-  --amber:     #f37021;
-  --amber-2:   #ff9800;
-  --amber-bg:  #fff3e0;
+  --amber: #f37021;
+  --amber-2: #ff9800;
+  --amber-bg: #fff3e0;
   --amber-glow: rgba(243, 112, 33, 0.25);
 
-  /* Dark surfaces */
-  --dark:      #0f0f14;
-  --dark-2:    #1a1a22;
-  --dark-3:    #242430;
-  --dark-4:    #2e2e3d;
-  --dark-border: rgba(255,255,255,0.07);
-  --dark-border-strong: rgba(255,255,255,0.12);
+  /* Dark surfaces (header/nav always dark) */
+  --dark: #0f0f14;
+  --dark-2: #1a1a22;
+  --dark-3: #242430;
+  --dark-4: #2e2e3d;
+  --dark-border: rgba(255, 255, 255, 0.07);
+  --dark-border-strong: rgba(255, 255, 255, 0.12);
 
   /* Light surfaces */
-  --bg:        #f2f3f7;
-  --card:      #ffffff;
-  --card-2:    #f8f9fc;
+  --bg: #f2f3f7;
+  --card: #ffffff;
+  --card-2: #f8f9fc;
 
   /* Text */
-  --text:      #12121a;
-  --text-2:    #40404f;
-  --text-3:    #7a7a8c;
-  --text-4:    #b0b0c0;
+  --text: #12121a;
+  --text-2: #40404f;
+  --text-3: #7a7a8c;
+  --text-4: #b0b0c0;
 
   /* Border */
-  --border:    #e2e4ee;
+  --border: #e2e4ee;
+
+  /* Task urgency card backgrounds */
+  --overdue-bg: #fff0f0;
+  --thisweek-bg: #fffbf0;
+  --later-bg: #f8f4ff;
 
   /* Status */
-  --blue:      #2563EB;
-  --green:     #16a34a;
-  --red:       #e74c3c;
-  --orange:    #f37021;
-  --purple:    #7c3aed;
+  --blue: #2563EB;
+  --green: #16a34a;
+  --red: #e74c3c;
+  --orange: #f37021;
+  --purple: #7c3aed;
 
   /* Radius */
-  --r-sm:   8px;
-  --r-md:   12px;
-  --r-lg:   16px;
-  --r-xl:   20px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
   --r-full: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.18);
-  --shadow-amber: 0 4px 16px rgba(243,112,33,0.28);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
+  --shadow-amber: 0 4px 16px rgba(243, 112, 33, 0.28);
 
   /* Transitions */
   --t-fast: 0.12s ease;
-  --t-mid:  0.20s ease;
+  --t-mid: 0.20s ease;
   --t-slow: 0.35s ease;
 
   /* Tab bar height */
   --tab-h: 60px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Dark Mode ── */
+[data-theme="dark"] {
+  --bg: #0f0f14;
+  --card: #1a1a22;
+  --card-2: #242430;
+
+  --text: #f0f0f8;
+  --text-2: #b0b0c4;
+  --text-3: #6a6a82;
+  --text-4: #48485e;
+
+  --border: #2e2e3d;
+
+  --amber-bg: rgba(243, 112, 33, 0.15);
+
+  --overdue-bg: rgba(231, 76, 60, 0.12);
+  --thisweek-bg: rgba(243, 112, 33, 0.10);
+  --later-bg: rgba(124, 58, 237, 0.10);
 }
 
 html {
@@ -85,53 +112,157 @@ body {
   margin: 0 auto;
   overflow-x: hidden;
   position: relative;
+  transition: background var(--t-mid), color var(--t-mid);
 }
 
 /* ── Typography ── */
-h1, h2, h3, h4 { line-height: 1.3; letter-spacing: -0.02em; }
-button, input, textarea, select { font-family: inherit; font-size: 14px; }
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: 14px;
+}
 
 /* ── Keyframes ── */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
 @keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+  0% {
+    background-position: -400px 0;
+  }
+
+  100% {
+    background-position: 400px 0;
+  }
 }
+
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.45; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.45;
+  }
 }
+
 @keyframes toastIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.96); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-12px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
 }
+
 @keyframes optimisticPulse {
-  0%, 100% { transform: translateX(-100%); }
-  50%       { transform: translateX(100%); }
+
+  0%,
+  100% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
 
 /* ── Utilities ── */
 .sr-only {
-  position: absolute; width: 1px; height: 1px;
-  padding: 0; margin: -1px; overflow: hidden;
-  clip: rect(0,0,0,0); border: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
