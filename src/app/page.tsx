@@ -16,10 +16,25 @@ import AddUpdateScreen from '@/components/screens/AddUpdateScreen';
 import Toast from '@/components/ui/Toast';
 
 export default function App() {
-  const { currentScreen, myUserId, setStatusList, setAllProjects, setAllUsers } = useAppStore();
+  const { currentScreen, myUserId, setUser, myUserName, myUserEmail, setStatusList, setAllProjects, setAllUsers } = useAppStore();
 
   useEffect(() => {
     if (!myUserId) return;
+
+    // Jeśli myUserId wygląda jak email (nie liczba), napraw go przez /api/auth/me
+    const isEmail = myUserId.includes('@') || !/^\d+$/.test(myUserId);
+    if (isEmail) {
+      fetch('/api/auth/me', { credentials: 'same-origin' })
+        .then(r => r.ok ? r.json() : null)
+        .then(me => {
+          if (me?.ok && me.id) {
+            const correctedName = `${me.firstname || ''} ${me.lastname || ''}`.trim() || me.username || me.email || myUserEmail;
+            setUser(String(me.id), correctedName, me.email || myUserEmail);
+          }
+        })
+        .catch(() => { });
+    }
+
     setStatusList(FALLBACK_STATUS_LIST);
     Promise.allSettled([
       apiGetStatusLabels().then(setStatusList),

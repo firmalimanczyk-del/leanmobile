@@ -23,21 +23,42 @@ export default function LoginScreen() {
             const ok = await apiLogin(email, password);
             if (!ok) { setError('Nieprawidłowy email lub hasło'); setLoading(false); return; }
 
-            // Pobierz listę użytkowników żeby znaleźć dane profilu
-            let users: import('@/lib/leantime-api').LtUser[] = [];
+            // Krok 1: Pobierz dane zalogowanego użytkownika z sesji (/api/auth/me)
+            let userId = '';
+            let name = '';
             try {
-                users = await apiGetUsers();
-                setAllUsers(users);
-            } catch { /* kontynuuj nawet bez listy user */ }
+                const meRes = await fetch('/api/auth/me', { credentials: 'same-origin' });
+                if (meRes.ok) {
+                    const me = await meRes.json();
+                    if (me.ok && me.id) {
+                        userId = String(me.id);
+                        name = `${me.firstname || ''} ${me.lastname || ''}`.trim() || me.username || me.email || email;
+                    }
+                }
+            } catch { /* kontynuuj */ }
 
-            const user = users.find((u: { username?: string; email?: string }) =>
-                (u.username || u.email || '').toLowerCase() === email.toLowerCase()
-            );
+            // Krok 2: Jeśli /me nie zadziałało, spróbuj przez listę użytkowników
+            if (!userId) {
+                let users: import('@/lib/leantime-api').LtUser[] = [];
+                try {
+                    users = await apiGetUsers();
+                    setAllUsers(users);
+                } catch { /* kontynuuj nawet bez listy user */ }
 
-            const userId = user?.id ? String(user.id) : email;
-            const name = user
-                ? `${user.firstname || ''} ${user.lastname || ''}`.trim() || email
-                : email;
+                const user = users.find((u: { username?: string; email?: string }) =>
+                    (u.username || u.email || '').toLowerCase() === email.toLowerCase()
+                );
+                userId = user?.id ? String(user.id) : email;
+                name = user
+                    ? `${user.firstname || ''} ${user.lastname || ''}`.trim() || email
+                    : email;
+
+                // Zapisz users do store jeśli nie zapisano jeszcze
+                if (users.length) setAllUsers(users);
+            } else {
+                // Załaduj users do store w tle (nie blokuj)
+                apiGetUsers().then(u => setAllUsers(u)).catch(() => { });
+            }
 
             setUser(userId, name, email);
             showToast(`Zalogowano jako ${name} ✓`);

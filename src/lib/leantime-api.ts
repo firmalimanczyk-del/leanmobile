@@ -349,13 +349,37 @@ export async function apiGetStatusLabels(): Promise<LtStatusLabel[]> {
 // ─── TASKS ───────────────────────────────────────────────────
 
 export async function apiGetAllTasks(): Promise<LtTask[]> {
+    // Próba 1: dedykowana metoda "moje zadania" (Leantime 3.x)
     try {
-        const d = await rpc('leantime.rpc.tickets.getAll', {});
-        return toArr<LtTask>(d);
-    } catch {
+        const d = await rpc('leantime.rpc.tickets.getAll', { searchCriteria: { userId: 'current', currentProject: '' } });
+        const arr = toArr<LtTask>(d);
+        if (arr.length > 0) return arr;
+    } catch { /* próbuj dalej */ }
+
+    // Próba 2: getAllMyTickets / getMyTickets
+    try {
+        const d = await rpc('leantime.rpc.tickets.getMyTickets', {});
+        const arr = toArr<LtTask>(d);
+        if (arr.length > 0) return arr;
+    } catch { /* próbuj dalej */ }
+
+    // Próba 3: getAll z pustym currentProject (pobiera wszystkie projekty)
+    try {
+        const d = await rpc('leantime.rpc.tickets.getAll', { searchCriteria: { currentProject: '' } });
+        const arr = toArr<LtTask>(d);
+        if (arr.length > 0) return arr;
+    } catch { /* próbuj dalej */ }
+
+    // Próba 4: getAllBySearchCriteria
+    try {
         const d = await rpc('leantime.rpc.tickets.getAllBySearchCriteria', { searchCriteria: {} });
-        return toArr<LtTask>(d);
-    }
+        const arr = toArr<LtTask>(d);
+        if (arr.length > 0) return arr;
+    } catch { /* próbuj dalej */ }
+
+    // Próba 5: getAll z {} (ostateczny fallback)
+    const d = await rpc('leantime.rpc.tickets.getAll', {});
+    return toArr<LtTask>(d);
 }
 
 export async function apiGetProjectTasks(projectId: string | number): Promise<LtTask[]> {
