@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // WAŻNE: używamy LEANTIME_URL (bez NEXT_PUBLIC_) bo NEXT_PUBLIC_* zmienne
 // są inlinowane podczas buildu i mogą być puste jeśli przy buildzie nie były ustawione.
 // Dodaj LEANTIME_URL = https://projekty.limanczyk.pl do zmiennych Railway!
-const LEANTIME_URL = (process.env.LEANTIME_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+const LEANTIME_URL = (process.env.LEANTIME_URL || '').replace(/\/$/, '');
 const API_KEY = process.env.LEANTIME_API_KEY || '';
 
 
