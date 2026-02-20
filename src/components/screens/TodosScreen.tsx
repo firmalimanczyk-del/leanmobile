@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { apiGetAllTasks, DONE_STATUSES, fmtShort, dsDate } from '@/lib/leantime-api';
 import { showToast } from '@/components/ui/Toast';
@@ -26,14 +26,22 @@ export default function TodosScreen() {
         allProjects.filter(p => { const s = p.state != null ? +p.state : 0; return s !== 1 && s !== -1 && p.status !== 'closed' && p.status !== 'archived'; }).map(p => String(p.id))
     );
 
-    const load = async () => {
+    const load = async (userId?: string | null, projects?: typeof allProjects) => {
+        const uid = userId !== undefined ? userId : myUserId;
+        const projs = projects !== undefined ? projects : allProjects;
+
         if (loadingTodos) return;
         setLoadingTodos(true);
         try {
             const all = await apiGetAllTasks();
+            // Buduj activeProjectIds ze świeżej listy projektów
+            const activeProjIds = new Set(
+                projs.filter(p => { const s = p.state != null ? +p.state : 0; return s !== 1 && s !== -1 && p.status !== 'closed' && p.status !== 'archived'; }).map(p => String(p.id))
+            );
             const mine = all.filter(t => {
-                const m = String(t.editorId) === String(myUserId) || String(t.userId) === String(myUserId) || String(t.responsible) === String(myUserId);
-                return m && activeProjectIds.has(String(t.projectId));
+                const m = String(t.editorId) === String(uid) || String(t.userId) === String(uid) || String(t.responsible) === String(uid);
+                // Gdy projekty jeszcze nie załadowane, pokaż wszystkie moje zadania
+                return m && (activeProjIds.size === 0 || activeProjIds.has(String(t.projectId)));
             });
             setMyTodos(mine);
         } catch (e) {
@@ -43,7 +51,19 @@ export default function TodosScreen() {
         }
     };
 
-    useEffect(() => { if (!myTodos.length) load(); }, []);
+    // Ładuj zadania przy pierwszym montowaniu i gdy zmieni się userId lub projekty
+    const loadedRef = useRef(false);
+    useEffect(() => {
+        if (!myUserId) return;
+        // Pomiń pierwsze uruchomienie z błędnym userId (email) — poczekaj na korekty async
+        const isEmailId = myUserId.includes('@') || !/^\d+$/.test(myUserId);
+        if (isEmailId) return; // page.tsx naprawi userId i wywoła ponownie
+        if (loadedRef.current && myTodos.length > 0) return; // już załadowane, nie przeładowuj przy zmianie projektów
+        loadedRef.current = true;
+        load(myUserId, allProjects);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [myUserId, allProjects.length]);
+
 
     const open = myTodos.filter(t => !DONE_STATUSES.has(String(t.status)));
     const today = nowStr(); const eow = eowStr();
@@ -76,7 +96,7 @@ export default function TodosScreen() {
             {/* Header */}
             <header className={styles.header}>
                 <h1 className={styles.headerTitle}>Moje zadania</h1>
-                <button id="todos-refresh" className={styles.hbtn} onClick={load} aria-label="Odśwież" disabled={loadingTodos}>🔄</button>
+                <button id="todos-refresh" className={styles.hbtn} onClick={() => load()} aria-label="Odśwież" disabled={loadingTodos}>🔄</button>
                 <button id="todos-add" className={`${styles.hbtn} ${styles.hbtnPrimary}`} onClick={() => navigate('addTask')} aria-label="Dodaj zadanie">+</button>
                 <button id="todos-avatar" className={styles.avatarBtn} onClick={() => { if (confirm(`Wylogować ${myUserName}?`)) { clearUser(); showToast('Wylogowano'); } }}>{getInitials()}</button>
             </header>
