@@ -247,36 +247,16 @@ async function rpc(method: string, params: Record<string, unknown> = {}): Promis
 
 export async function apiLogin(email: string, password: string): Promise<boolean> {
     try {
-        // Pobierz stronę logowania przez proxy (dla hidden fields / CSRF)
-        const loginPage = await fetch('/api/auth/login', { credentials: 'same-origin' });
-        const loginHtml = await loginPage.text();
-        const hiddenFields: Record<string, string> = {};
-        const re = /<input[^>]*type\s*=\s*["']hidden["'][^>]*>/gi;
-        let match;
-        while ((match = re.exec(loginHtml)) !== null) {
-            const nameMatch = match[0].match(/name\s*=\s*["']([^"']+)["']/);
-            const valMatch = match[0].match(/value\s*=\s*["']([^"']*?)["']/);
-            if (nameMatch) hiddenFields[nameMatch[1]] = valMatch ? valMatch[1] : '';
-        }
-        let formBody = `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-        for (const [k, v] of Object.entries(hiddenFields)) {
-            formBody += `&${encodeURIComponent(k)}=${encodeURIComponent(v)}`;
-        }
-        // POST przez proxy — proxy przekaże cookie sesji od Leantime do przeglądarki
+        // Serwer Railway wykona cały flow logowania (GET+POST do Leantime)
+        // i ustawi ciasteczko lt_sess na domenie Railway — bez problemu CORS
         const resp = await fetch('/api/auth/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: formBody,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
             credentials: 'same-origin',
         });
         const data = await resp.json();
-        if (!resp.ok) return false;
-        const { location = '', body = '', ok = false } = data;
-        if (location.includes('/dashboard') || location.includes('/tickets')) return true;
-        if (location && !location.includes('/auth/login') && !location.includes('/auth/') && ok) return true;
-        if (body.includes('loginForm') || body.includes('login-form') || body.includes('name="password"')) return false;
-        if (ok && !body.includes('notification-error')) return true;
-        return false;
+        return data.ok === true;
     } catch {
         return false;
     }
