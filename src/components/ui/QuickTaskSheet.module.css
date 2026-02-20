@@ -1,0 +1,136 @@
+/* QuickTaskSheet.module.css */
+
+.quickSheet {
+    padding-bottom: calc(var(--safe-bottom) + 20px);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+
+.bolt {
+    font-size: 28px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 6px rgba(243, 112, 33, 0.5));
+}
+
+.headerTitle {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.3px;
+}
+
+.headerMeta {
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.form {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.titleInput {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: var(--r-md);
+    border: 2px solid var(--border);
+    background: var(--card-2);
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.titleInput:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px var(--amber-glow);
+    background: var(--card);
+}
+
+.titleInput::placeholder {
+    color: var(--text-4);
+    font-weight: 400;
+}
+
+.descInput {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: var(--r-md);
+    border: 1.5px solid var(--border);
+    background: var(--card-2);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 400;
+    outline: none;
+    resize: none;
+    transition: border-color 0.15s ease;
+    line-height: 1.5;
+}
+
+.descInput:focus {
+    border-color: var(--amber);
+    background: var(--card);
+}
+
+.descInput::placeholder {
+    color: var(--text-4);
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    padding: 16px 16px 0;
+}
+
+.cancelBtn {
+    flex: 0 0 auto;
+    padding: 14px 20px;
+    border-radius: var(--r-md);
+    border: 1.5px solid var(--border);
+    background: var(--card-2);
+    color: var(--text-3);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.cancelBtn:active {
+    transform: scale(0.97);
+}
+
+.saveBtn {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: var(--r-md);
+    border: none;
+    background: linear-gradient(135deg, var(--amber), var(--amber-2));
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--shadow-amber);
+    transition: all 0.12s ease;
+    letter-spacing: -0.2px;
+}
+
+.saveBtn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.saveBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
