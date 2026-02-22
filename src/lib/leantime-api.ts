@@ -214,7 +214,6 @@ async function rpc(method: string, params: Record<string, unknown> = {}): Promis
         if (attempt > 0) {
             await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 1000));
         }
-        // Wołamy lokalne proxy /api/jsonrpc (same origin — brak CORS)
         const r = await fetch('/api/jsonrpc', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -233,11 +232,22 @@ async function rpc(method: string, params: Record<string, unknown> = {}): Promis
             }
             throw new Error('Zbyt wiele zapytań — spróbuj ponownie za chwilę');
         }
+        // Sprawdź typ odpowiedzi zanim próbujemy JSON.parse
+        const contentType = r.headers.get('content-type') || '';
+        const raw = await r.text();
         if (!r.ok) {
-            const t = await r.text();
-            throw new Error(`HTTP ${r.status}: ${t}`);
+            throw new Error(`HTTP ${r.status}: ${raw.substring(0, 200)}`);
         }
-        const d = await r.json();
+        // Leantime zwraca HTML gdy sesja wygasła lub metoda rzuca redirect
+        if (raw.trimStart().startsWith('<')) {
+            throw new Error('Leantime zwrócił HTML zamiast JSON – sesja wygasła lub błąd serwera');
+        }
+        let d: { error?: { message?: string; code?: number }; result?: unknown };
+        try {
+            d = JSON.parse(raw);
+        } catch {
+            throw new Error(`Nieprawidłowa odpowiedź JSON: ${raw.substring(0, 100)}`);
+        }
         if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
         return d.result;
     }
@@ -439,28 +449,11 @@ export const PROJECT_STATUS_MAP: Record<string, number> = {
     green: 0, yellow: 1, red: 2,
 };
 
-// Dwa możliwe prefxy RPC dla komentarzy
-const COMMENT_PREFIXES = ['leantime.rpc.comments', 'leantime.rpc.Comments.Comments'];
-let latchedPrefix = '';
+// Prefix RPC dla komentarzy (Leantime 3.x)
+const COMMENT_RPC = 'leantime.rpc.comments';
 
 async function commentRpc(action: string, params: Record<string, unknown>): Promise<unknown> {
-    const prefixes = latchedPrefix ? [latchedPrefix] : COMMENT_PREFIXES;
-    let lastErr: Error = new Error('Unknown error');
-    for (const pfx of prefixes) {
-        try {
-            const result = await rpc(`${pfx}.${action}`, params);
-            if (!latchedPrefix) latchedPrefix = pfx;
-            return result;
-        } catch (e) {
-            lastErr = e as Error;
-            if (lastErr.message?.includes('500')) throw lastErr;
-            if (latchedPrefix && prefixes.length === 1) {
-                latchedPrefix = '';
-                return commentRpc(action, params);
-            }
-        }
-    }
-    throw lastErr;
+    return rpc(`${COMMENT_RPC}.${action}`, params);
 }
 
 export async function apiGetProjectUpdates(projectId: string | number): Promise<LtComment[]> {
@@ -485,16 +478,20 @@ export async function apiAddProjectUpdate(
     statusNum: number
 ): Promise<unknown> {
     const htmlText = `<p>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`;
+    const entityId = parseInt(String(projectId));
+    // entity musi być pełnym obiektem z id i name – inaczej Leantime rzuca redirect
+    const entity = { id: entityId, name: projectName, projectId: entityId };
     return commentRpc('addComment', {
         values: {
             text: htmlText,
             father: 0,
             status: String(statusNum),
             commentType: PROJECT_UPDATE_COMMENT_TYPE,
+            date: new Date().toISOString().slice(0, 19).replace('T', ' '),
         },
         module: 'project',
-        entityId: projectId,
-        entity: { name: projectName, id: projectId },
+        entityId: entityId,
+        entity,
     });
 }
 

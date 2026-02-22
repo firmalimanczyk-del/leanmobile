@@ -1,43 +1,84 @@
 // ============================================================
 // app/api/jsonrpc/route.ts — Proxy do Leantime JSON-RPC API
-// Hybryda: x-api-key (przepustka) + sesja użytkownika (atrybucja)
+// WAŻNE: Leantime 3.3.2 nie obsługuje x-api-key + sesja jednocześnie.
+// Middleware Leantime wybiera JEDEN tryb auth. Wysyłamy TYLKO x-api-key.
+// Atrybucja użytkownika odbywa się przez jawne pole userId w params.
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
 
-// WAŻNE: używamy LEANTIME_URL (bez NEXT_PUBLIC_) bo NEXT_PUBLIC_* zmienne
-// są inlinowane podczas buildu i mogą być puste jeśli przy buildzie nie były ustawione.
-// Dodaj LEANTIME_URL = https://projekty.limanczyk.pl do zmiennych Railway!
 const LEANTIME_URL = (process.env.LEANTIME_URL || '').replace(/\/$/, '');
-const API_KEY = process.env.LEANTIME_API_KEY || '';
-
+const GLOBAL_API_KEY = process.env.LEANTIME_API_KEY || '';
 
 export async function POST(req: NextRequest) {
+    let method = '?';
     try {
         const body = await req.json();
+        method = body?.method || '?';
 
-        // Odczytaj sesję użytkownika zapisaną przy logowaniu
+        // Odczytaj osobisty apiKey użytkownika z cookie (ustawionego przy logowaniu)
         const cookies = req.headers.get('cookie') || '';
-        const ltSessMatch = cookies.match(/lt_sess=([^;]+)/);
-        const ltSession = ltSessMatch ? decodeURIComponent(ltSessMatch[1]) : '';
+        const personalKeyMatch = cookies.match(/lt_user_api_key=([^;]+)/);
+        const personalApiKey = personalKeyMatch ? decodeURIComponent(personalKeyMatch[1]) : '';
+        // Użyj osobistego klucza jeśli dostępny → akcje przypisane do właściwego użytkownika
+        const apiKey = personalApiKey || GLOBAL_API_KEY;
+        const userIdMatch = cookies.match(/lt_user_id=([^;]+)/);
+        const currentUserId = userIdMatch ? decodeURIComponent(userIdMatch[1]) : 'unknown';
+        console.log(`[jsonrpc] → ${method} | userId: ${currentUserId} | personalKey: ${!!personalApiKey}`);
 
+        // UWAGA: NIE wysyłamy lt_sess do Leantime!
+        // Leantime 3.3.2 bug: x-api-key + session cookie = konflikt auth → HTML response
+        // Zamiast tego userId przekazujemy jawnie w params gdzie możliwe.
         const response = await fetch(`${LEANTIME_URL}/api/jsonrpc`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // x-api-key: przepustka do endpointu JSON-RPC
-                'x-api-key': API_KEY,
-                // Cookie sesji: określa KOGO dotyczą działania (atrybucja użytkownika)
-                ...(ltSession ? { Cookie: ltSession } : {}),
+                'x-api-key': apiKey,
             },
             body: JSON.stringify(body),
         });
 
-        const data = await response.json();
+        // Odczytaj raw text PRZED próbą JSON.parse
+        const raw = await response.text();
+
+        // Jeśli Leantime zwrócił HTML (błąd serwera lub przekierowanie)
+        if (raw.trimStart().startsWith('<')) {
+            const preview = raw.substring(0, 200).replace(/\s+/g, ' ');
+            console.error(`[jsonrpc] HTML response for ${method} (HTTP ${response.status}): ${preview}`);
+            return NextResponse.json(
+                {
+                    jsonrpc: '2.0',
+                    error: {
+                        code: -32000,
+                        message: `Błąd serwera dla metody ${method} (HTTP ${response.status}). Szczegóły w logach.`,
+                    },
+                    id: body?.id ?? null,
+                },
+                { status: 500 }
+            );
+        }
+
+        let data: unknown;
+        try {
+            data = JSON.parse(raw);
+        } catch {
+            console.error(`[jsonrpc] JSON parse error for ${method}: ${raw.substring(0, 200)}`);
+            return NextResponse.json(
+                {
+                    jsonrpc: '2.0',
+                    error: { code: -32700, message: `Nieprawidłowy JSON od Leantime` },
+                    id: body?.id ?? null,
+                },
+                { status: 500 }
+            );
+        }
+
+        console.log(`[jsonrpc] ← ${method} HTTP ${response.status}`);
         return NextResponse.json(data, { status: response.status });
+
     } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
-        console.error('[jsonrpc] Error:', message);
+        console.error(`[jsonrpc] Catch error for ${method}:`, message);
         return NextResponse.json(
             { jsonrpc: '2.0', error: { code: -32000, message }, id: null },
             { status: 500 }

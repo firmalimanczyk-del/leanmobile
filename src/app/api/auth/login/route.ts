@@ -1,23 +1,59 @@
 // ============================================================
 // app/api/auth/login/route.ts
-// Serwer wykonuje pełny GET+POST do Leantime, naprawiając CORS i cross-domain cookies
+// Po udanym logowaniu pobieramy osobisty apiKey użytkownika z Leantime.
+// Dzięki temu każde żądanie API jest podpisane kluczem DANEGO użytkownika
+// → prawidłowa atrybucja (kto dodał komentarz, ticket itp.)
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
 
 const LEANTIME_URL = (process.env.LEANTIME_URL || '').replace(/\/$/, '');
+const GLOBAL_API_KEY = process.env.LEANTIME_API_KEY || '';
 
 function extractSessionCookie(setCookieHeader: string): string {
-    // set-cookie może wyglądać np.:
-    //   "PHPSESSID=abc123; path=/; HttpOnly"
-    //   "leantime_session=xyz; path=/; SameSite=Strict; Secure"
-    // Chcemy tylko "NAZWACIAST=WARTOŚĆ" bez atrybutów
     if (!setCookieHeader) return '';
-    const parts = setCookieHeader.split(','); // wiele ciasteczek oddzielonych przecinkiem
+    const parts = setCookieHeader.split(',');
     const sessions = parts
-        .map(p => p.trim().split(';')[0].trim())    // weź tylko name=value
+        .map(p => p.trim().split(';')[0].trim())
         .filter(p => p.includes('=') && !p.startsWith('path') && !p.startsWith('expires'));
     return sessions.join('; ');
+}
+
+// Pobiera osobisty apiKey użytkownika na podstawie emaila
+async function fetchUserApiKey(email: string): Promise<{ id: string; apiKey: string; firstname: string; lastname: string } | null> {
+    try {
+        const body = JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'leantime.rpc.users.getAll',
+            params: {},
+            id: 'login-fetch-users',
+        });
+        const res = await fetch(`${LEANTIME_URL}/api/jsonrpc`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': GLOBAL_API_KEY,
+            },
+            body,
+        });
+        const raw = await res.text();
+        if (raw.trimStart().startsWith('<')) return null;
+        const data = JSON.parse(raw);
+        const users: Record<string, unknown>[] = data?.result ? Object.values(data.result) : [];
+        const user = users.find((u) => {
+            const uEmail = (u.username || u.email || '') as string;
+            return uEmail.toLowerCase() === email.toLowerCase();
+        });
+        if (!user) return null;
+        return {
+            id: String(user.id || ''),
+            apiKey: String(user.apiKey || ''),
+            firstname: String(user.firstname || ''),
+            lastname: String(user.lastname || ''),
+        };
+    } catch {
+        return null;
+    }
 }
 
 export async function POST(req: NextRequest) {
@@ -31,11 +67,9 @@ export async function POST(req: NextRequest) {
         const getRes = await fetch(`${LEANTIME_URL}/auth/login`, {
             headers: { 'User-Agent': 'LeanMobile/1.0', Accept: 'text/html' },
         });
-
         const html = await getRes.text();
         const sessionFromGet = extractSessionCookie(getRes.headers.get('set-cookie') || '');
 
-        // Sparsuj ukryte pola formularza (CSRF, tokeny itp.)
         const hiddenFields: Record<string, string> = {};
         const re = /<input[^>]*type\s*=\s*["']hidden["'][^>]*>/gi;
         let m;
@@ -45,7 +79,7 @@ export async function POST(req: NextRequest) {
             if (nm) hiddenFields[nm[1]] = vm ? vm[1] : '';
         }
 
-        // ── Krok 2: POST do Leantime z sesjąi powodem ──────────────────
+        // ── Krok 2: POST z danymi logowania ────────────────────────────
         let formBody = `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
         for (const [k, v] of Object.entries(hiddenFields)) {
             formBody += `&${encodeURIComponent(k)}=${encodeURIComponent(v)}`;
@@ -72,16 +106,13 @@ export async function POST(req: NextRequest) {
         let debugReason = '';
 
         if (location.includes('/dashboard') || location.includes('/tickets') || location.includes('/projects')) {
-            ok = true;
-            debugReason = 'redirect_to_dashboard';
+            ok = true; debugReason = 'redirect_to_dashboard';
         } else if ((postStatus === 302 || postStatus === 301) && location && !location.includes('/auth/')) {
-            ok = true;
-            debugReason = 'redirect_not_auth';
+            ok = true; debugReason = 'redirect_not_auth';
         } else if (postStatus === 200) {
-            const body = await postRes.text();
-            if (!body.includes('name="password"') && !body.includes('notification-error') && !body.includes('loginForm')) {
-                ok = true;
-                debugReason = 'no_login_form_or_error';
+            const bodyText = await postRes.text();
+            if (!bodyText.includes('name="password"') && !bodyText.includes('notification-error') && !bodyText.includes('loginForm')) {
+                ok = true; debugReason = 'no_login_form_or_error';
             } else {
                 debugReason = 'still_on_login_page';
             }
@@ -92,23 +123,64 @@ export async function POST(req: NextRequest) {
         const headers = new Headers({ 'Content-Type': 'application/json' });
 
         if (ok) {
-            // Użyj sesji z POST (jeśli dostępna, Leantime może wydać nowy PHPSESSID po zalogowaniu)
+            // ── Krok 3: Pobierz osobisty apiKey użytkownika ────────────
+            const userInfo = await fetchUserApiKey(email);
+            console.log(`[auth/login] User: ${email} | id: ${userInfo?.id} | hasApiKey: ${!!userInfo?.apiKey}`);
+
+            // Ustaw cookie z osobistym kluczem API (HttpOnly - niewidoczny dla JS)
+            const cookieParts = [
+                `lt_user_api_key=${encodeURIComponent(userInfo?.apiKey || '')}`,
+                'Path=/',
+                'HttpOnly',
+                'SameSite=Lax',
+                'Max-Age=86400',
+            ];
+            headers.append('set-cookie', cookieParts.join('; '));
+
+            // Ustaw cookie z userId (do użytku w API calls)
+            const userIdParts = [
+                `lt_user_id=${encodeURIComponent(userInfo?.id || '')}`,
+                'Path=/',
+                'HttpOnly',
+                'SameSite=Lax',
+                'Max-Age=86400',
+            ];
+            headers.append('set-cookie', userIdParts.join('; '));
+
+            // Zachowaj też starą sesję Leantime (dla kompatybilności z /auth/logout)
             const sessionToStore = sessionFromPost || sessionFromGet;
             if (sessionToStore) {
-                headers.set(
-                    'set-cookie',
-                    `lt_sess=${encodeURIComponent(sessionToStore)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400`
-                );
+                const sessParts = [
+                    `lt_sess=${encodeURIComponent(sessionToStore)}`,
+                    'Path=/',
+                    'HttpOnly',
+                    'SameSite=Lax',
+                    'Max-Age=86400',
+                ];
+                headers.append('set-cookie', sessParts.join('; '));
             }
+
+            const isDev = process.env.NODE_ENV !== 'production';
+            const responseData = {
+                ok: true,
+                user: {
+                    id: userInfo?.id || '',
+                    firstname: userInfo?.firstname || '',
+                    lastname: userInfo?.lastname || '',
+                    email,
+                    hasPersonalKey: !!(userInfo?.apiKey),
+                },
+                ...(isDev ? { debug: { postStatus, location, debugReason, sessionFromGet: !!sessionFromGet, sessionFromPost: !!sessionFromPost } } : {}),
+            };
+            return new NextResponse(JSON.stringify(responseData), { status: 200, headers });
         }
 
-        // W trybie dev, dodaj debug info
         const isDev = process.env.NODE_ENV !== 'production';
         const responseData = isDev
             ? { ok, debug: { postStatus, location, sessionFromGet: !!sessionFromGet, sessionFromPost: !!sessionFromPost, hiddenFieldKeys: Object.keys(hiddenFields), debugReason } }
             : { ok };
-
         return new NextResponse(JSON.stringify(responseData), { status: 200, headers });
+
     } catch (err) {
         const message = err instanceof Error ? err.message : 'Błąd serwera';
         console.error('[auth/login] Error:', message);
