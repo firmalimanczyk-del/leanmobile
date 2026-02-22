@@ -5,19 +5,19 @@
     align-items: center;
     justify-content: center;
     padding: 24px 16px;
-    background: radial-gradient(ellipse at 50% 0%, #1e1e2e 0%, var(--dark) 70%);
+    background: radial-gradient(ellipse at 50% 0%, #1A1A1A 0%, #121212 70%);
 }
 
 .card {
     width: 100%;
     max-width: 400px;
     background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--dark-border-strong);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: var(--r-xl);
     padding: 32px 24px;
     backdrop-filter: blur(20px);
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    border-top: 3px solid var(--amber);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    border-top: 3px solid var(--coral);
     animation: slideUp 0.35s ease;
 }
 
@@ -26,7 +26,7 @@
     font-weight: 800;
     text-align: center;
     margin-bottom: 6px;
-    background: linear-gradient(135deg, var(--amber), var(--amber-2));
+    background: linear-gradient(135deg, #F06A4D, #FF8A6A);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -122,11 +122,11 @@
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    background: linear-gradient(135deg, var(--amber), var(--amber-2));
-    color: #fff;
+    background: var(--coral);
+    color: #000;
     margin-top: 4px;
-    transition: opacity var(--t-fast), transform var(--t-fast);
-    box-shadow: var(--shadow-amber);
+    transition: opacity var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+    box-shadow: 0 4px 20px rgba(240, 106, 77, 0.45);
     display: flex;
     align-items: center;
     justify-content: center;

@@ -13,88 +13,92 @@
 :root {
   --font: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-  /* Brand */
-  --amber: #f37021;
-  --amber-2: #ff9800;
-  --amber-bg: #fff3e0;
-  --amber-glow: rgba(243, 112, 33, 0.25);
+  /* ── Paleta ciemna (domyślna, OLED-friendly) ── */
+  --bg: #121212;
+  /* Main background — Deep Charcoal */
+  --card: #1E1E1E;
+  /* Surface — karty, kontenery */
+  --card-2: #252525;
+  /* Surface elevated */
+  --border: #2C2C2C;
+  /* Subtelne obramowania */
 
-  /* Dark surfaces (header/nav always dark) */
-  --dark: #0f0f14;
-  --dark-2: #1a1a22;
-  --dark-3: #242430;
-  --dark-4: #2e2e3d;
+  /* ── Akcenty brandingowe ── */
+  --coral: #F06A4D;
+  /* Primary CTA — FAB, aktywne ikony */
+  --coral-2: #FF8A6A;
+  /* Coral lighter */
+  --coral-glow: rgba(240, 106, 77, 0.28);
+  --blue: #4DA6FF;
+  /* Secondary — linki, badge "Nowe" */
+  --blue-glow: rgba(77, 166, 255, 0.20);
+
+  /* Wstecz-compat aliasy (stary kod używa --amber) */
+  --amber: var(--coral);
+  --amber-2: var(--coral-2);
+  --amber-bg: rgba(240, 106, 77, 0.15);
+  --amber-glow: var(--coral-glow);
+
+  /* ── Statusy ── */
+  --red: #EB5757;
+  /* Po terminie / problem */
+  --yellow: #F2C94C;
+  /* W toku */
+  --green: #27AE60;
+  /* Zakończone */
+  --purple: #BB6BD9;
+  /* Termin później */
+  --orange: #F06A4D;
+  /* = coral, alias */
+
+  /* ── Tła grupowe (urgency) ── */
+  --overdue-bg: rgba(235, 87, 87, 0.10);
+  --thisweek-bg: rgba(242, 201, 76, 0.08);
+  --later-bg: rgba(187, 107, 217, 0.10);
+
+  /* ── Tekst ── */
+  --text: #FFFFFF;
+  /* Nazwy zadań, headery */
+  --text-2: #C8C8C8;
+  /* Drugorzędne */
+  --text-3: #A0A0A0;
+  /* Daty, meta, pomocnicze */
+  --text-4: #5A5A5A;
+  /* Bardzo jasne placeholdy */
+
+  /* ── Dark surfaces (header / nav) ── */
+  --dark: #0D0D0D;
+  --dark-2: #161616;
+  --dark-3: #1E1E1E;
+  --dark-4: #2C2C2C;
   --dark-border: rgba(255, 255, 255, 0.07);
   --dark-border-strong: rgba(255, 255, 255, 0.12);
 
-  /* Light surfaces */
-  --bg: #f2f3f7;
-  --card: #ffffff;
-  --card-2: #f8f9fc;
-
-  /* Text */
-  --text: #12121a;
-  --text-2: #40404f;
-  --text-3: #7a7a8c;
-  --text-4: #b0b0c0;
-
-  /* Border */
-  --border: #e2e4ee;
-
-  /* Task urgency card backgrounds */
-  --overdue-bg: #fff0f0;
-  --thisweek-bg: #fffbf0;
-  --later-bg: #f8f4ff;
-
-  /* Status */
-  --blue: #2563EB;
-  --green: #16a34a;
-  --red: #e74c3c;
-  --orange: #f37021;
-  --purple: #7c3aed;
-
-  /* Radius */
+  /* ── Radius ── */
   --r-sm: 8px;
   --r-md: 12px;
   --r-lg: 16px;
   --r-xl: 20px;
   --r-full: 9999px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.10);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
-  --shadow-amber: 0 4px 16px rgba(243, 112, 33, 0.28);
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
+  --shadow-amber: 0 4px 20px rgba(240, 106, 77, 0.40);
+  --shadow-coral: 0 4px 20px rgba(240, 106, 77, 0.40);
 
-  /* Transitions */
+  /* ── Transitions ── */
   --t-fast: 0.12s ease;
   --t-mid: 0.20s ease;
   --t-slow: 0.35s ease;
 
-  /* Tab bar height */
+  /* ── Layout ── */
   --tab-h: 60px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* ── Dark Mode ── */
-[data-theme="dark"] {
-  --bg: #0f0f14;
-  --card: #1a1a22;
-  --card-2: #242430;
-
-  --text: #f0f0f8;
-  --text-2: #b0b0c4;
-  --text-3: #6a6a82;
-  --text-4: #48485e;
-
-  --border: #2e2e3d;
-
-  --amber-bg: rgba(243, 112, 33, 0.15);
-
-  --overdue-bg: rgba(231, 76, 60, 0.12);
-  --thisweek-bg: rgba(243, 112, 33, 0.10);
-  --later-bg: rgba(124, 58, 237, 0.10);
-}
+/* ── Brak oddzielnego dark-mode — domyślna jest ciemna ── */
 
 html {
   font-size: 16px;
@@ -112,7 +116,6 @@ body {
   margin: 0 auto;
   overflow-x: hidden;
   position: relative;
-  transition: background var(--t-mid), color var(--t-mid);
 }
 
 /* ── Typography ── */
@@ -243,7 +246,7 @@ select {
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 
 ::-webkit-scrollbar-track {
@@ -252,7 +255,7 @@ select {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 /* ── Utilities ── */

@@ -36,14 +36,14 @@ export default function Toast() {
         }}>
             {items.map((t) => (
                 <div key={t.id} style={{
-                    background: t.type === 'error' ? '#e74c3c' : t.type === 'info' ? '#2563EB' : '#1a1a22',
+                    background: '#1E1E1E',
                     color: '#fff',
                     padding: '10px 18px',
                     borderRadius: 12,
                     fontSize: 13,
                     fontWeight: 600,
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                    borderLeft: `4px solid ${t.type === 'error' ? '#ff6b6b' : t.type === 'info' ? '#60a5fa' : '#f37021'}`,
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.55)',
+                    borderLeft: `4px solid ${t.type === 'error' ? '#EB5757' : t.type === 'info' ? '#4DA6FF' : '#F06A4D'}`,
                     animation: 'toastIn 0.25s ease',
                     lineHeight: 1.4,
                 }}>
