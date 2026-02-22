@@ -1,6 +1,8 @@
 // ============================================================
 // app/api/auth/login/route.ts
-// Po udanym logowaniu pobieramy osobisty apiKey użytkownika z Leantime.
+// Po udanym logowaniu ustawiamy cookie z osobistym apiKey użytkownika.
+// Klucze są predefiniowane w zmiennej środowiskowej USER_API_KEYS
+// (format: "email1:key1,email2:key2,...")
 // Dzięki temu każde żądanie API jest podpisane kluczem DANEGO użytkownika
 // → prawidłowa atrybucja (kto dodał komentarz, ticket itp.)
 // ============================================================
@@ -8,7 +10,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const LEANTIME_URL = (process.env.LEANTIME_URL || '').replace(/\/$/, '');
-const GLOBAL_API_KEY = process.env.LEANTIME_API_KEY || '';
 
 function extractSessionCookie(setCookieHeader: string): string {
     if (!setCookieHeader) return '';
@@ -19,41 +20,18 @@ function extractSessionCookie(setCookieHeader: string): string {
     return sessions.join('; ');
 }
 
-// Pobiera osobisty apiKey użytkownika na podstawie emaila
-async function fetchUserApiKey(email: string): Promise<{ id: string; apiKey: string; firstname: string; lastname: string } | null> {
-    try {
-        const body = JSON.stringify({
-            jsonrpc: '2.0',
-            method: 'leantime.rpc.users.getAll',
-            params: {},
-            id: 'login-fetch-users',
-        });
-        const res = await fetch(`${LEANTIME_URL}/api/jsonrpc`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': GLOBAL_API_KEY,
-            },
-            body,
-        });
-        const raw = await res.text();
-        if (raw.trimStart().startsWith('<')) return null;
-        const data = JSON.parse(raw);
-        const users: Record<string, unknown>[] = data?.result ? Object.values(data.result) : [];
-        const user = users.find((u) => {
-            const uEmail = (u.username || u.email || '') as string;
-            return uEmail.toLowerCase() === email.toLowerCase();
-        });
-        if (!user) return null;
-        return {
-            id: String(user.id || ''),
-            apiKey: String(user.apiKey || ''),
-            firstname: String(user.firstname || ''),
-            lastname: String(user.lastname || ''),
-        };
-    } catch {
-        return null;
+// Odczytuje apiKey użytkownika ze statycznej mapy w zmiennej USER_API_KEYS
+// Format zmiennej: "email1:apiKey1,email2:apiKey2,..."
+function lookupUserApiKey(email: string): string {
+    const raw = process.env.USER_API_KEYS || '';
+    for (const pair of raw.split(',')) {
+        const colonIdx = pair.indexOf(':');
+        if (colonIdx === -1) continue;
+        const e = pair.slice(0, colonIdx).trim();
+        const k = pair.slice(colonIdx + 1).trim();
+        if (e.toLowerCase() === email.toLowerCase()) return k;
     }
+    return '';
 }
 
 export async function POST(req: NextRequest) {
@@ -123,29 +101,19 @@ export async function POST(req: NextRequest) {
         const headers = new Headers({ 'Content-Type': 'application/json' });
 
         if (ok) {
-            // ── Krok 3: Pobierz osobisty apiKey użytkownika ────────────
-            const userInfo = await fetchUserApiKey(email);
-            console.log(`[auth/login] User: ${email} | id: ${userInfo?.id} | hasApiKey: ${!!userInfo?.apiKey}`);
+            // ── Krok 3: Odczytaj osobisty apiKey z mapy USER_API_KEYS ──
+            const personalApiKey = lookupUserApiKey(email);
+            console.log(`[auth/login] User: ${email} | hasApiKey: ${!!personalApiKey}`);
 
             // Ustaw cookie z osobistym kluczem API (HttpOnly - niewidoczny dla JS)
             const cookieParts = [
-                `lt_user_api_key=${encodeURIComponent(userInfo?.apiKey || '')}`,
+                `lt_user_api_key=${encodeURIComponent(personalApiKey)}`,
                 'Path=/',
                 'HttpOnly',
                 'SameSite=Lax',
                 'Max-Age=86400',
             ];
             headers.append('set-cookie', cookieParts.join('; '));
-
-            // Ustaw cookie z userId (do użytku w API calls)
-            const userIdParts = [
-                `lt_user_id=${encodeURIComponent(userInfo?.id || '')}`,
-                'Path=/',
-                'HttpOnly',
-                'SameSite=Lax',
-                'Max-Age=86400',
-            ];
-            headers.append('set-cookie', userIdParts.join('; '));
 
             // Zachowaj też starą sesję Leantime (dla kompatybilności z /auth/logout)
             const sessionToStore = sessionFromPost || sessionFromGet;
@@ -164,11 +132,8 @@ export async function POST(req: NextRequest) {
             const responseData = {
                 ok: true,
                 user: {
-                    id: userInfo?.id || '',
-                    firstname: userInfo?.firstname || '',
-                    lastname: userInfo?.lastname || '',
                     email,
-                    hasPersonalKey: !!(userInfo?.apiKey),
+                    hasPersonalKey: !!personalApiKey,
                 },
                 ...(isDev ? { debug: { postStatus, location, debugReason, sessionFromGet: !!sessionFromGet, sessionFromPost: !!sessionFromPost } } : {}),
             };
