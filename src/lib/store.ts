@@ -99,7 +99,7 @@ function loadUser() {
 
 function loadTheme(): 'light' | 'dark' {
     if (typeof window === 'undefined') return 'light';
-    return (localStorage.getItem('lt_theme') as 'light' | 'dark') || 'dark';
+    return (localStorage.getItem('lt_theme') as 'light' | 'dark') || 'light';
 }
 
 // ─── Store ───────────────────────────────────────────────────
