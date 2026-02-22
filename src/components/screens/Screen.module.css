@@ -21,8 +21,6 @@
     position: sticky;
     top: 0;
     z-index: 50;
-    /* subtelny gradient w header */
-    background: linear-gradient(180deg, #0D0D0D 0%, #121212 100%);
 }
 
 .headerTitle {

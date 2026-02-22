@@ -10,96 +10,142 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ══════════════════════════════════════════════
+   LIGHT MODE — domyślny (`:root`)
+   Czyste białe tło, ciemny tekst
+   ══════════════════════════════════════════════ */
 :root {
   --font: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-  /* ── Paleta ciemna (domyślna, OLED-friendly) ── */
-  --bg: #121212;
-  /* Main background — Deep Charcoal */
-  --card: #1E1E1E;
-  /* Surface — karty, kontenery */
-  --card-2: #252525;
-  /* Surface elevated */
-  --border: #2C2C2C;
-  /* Subtelne obramowania */
+  /* Tła */
+  --bg: #F2F3F7;
+  /* Główne tło — jasny szary */
+  --card: #FFFFFF;
+  /* Karty, kontenery */
+  --card-2: #F8F9FC;
+  /* Karty podwyższone */
 
-  /* ── Akcenty brandingowe ── */
-  --coral: #F06A4D;
-  /* Primary CTA — FAB, aktywne ikony */
-  --coral-2: #FF8A6A;
-  /* Coral lighter */
-  --coral-glow: rgba(240, 106, 77, 0.28);
-  --blue: #4DA6FF;
-  /* Secondary — linki, badge "Nowe" */
-  --blue-glow: rgba(77, 166, 255, 0.20);
+  /* Obramowania */
+  --border: #E2E4EE;
 
-  /* Wstecz-compat aliasy (stary kod używa --amber) */
-  --amber: var(--coral);
-  --amber-2: var(--coral-2);
-  --amber-bg: rgba(240, 106, 77, 0.15);
-  --amber-glow: var(--coral-glow);
+  /* Tekst */
+  --text: #12121A;
+  /* Główny — prawie czarny */
+  --text-2: #40404F;
+  /* Drugorzędny */
+  --text-3: #7A7A8C;
+  /* Pomocniczy — daty, meta */
+  --text-4: #B0B0C0;
+  /* Placeholder */
 
-  /* ── Statusy ── */
-  --red: #EB5757;
-  /* Po terminie / problem */
-  --yellow: #F2C94C;
-  /* W toku */
-  --green: #27AE60;
-  /* Zakończone */
-  --purple: #BB6BD9;
-  /* Termin później */
-  --orange: #F06A4D;
-  /* = coral, alias */
-
-  /* ── Tła grupowe (urgency) ── */
-  --overdue-bg: rgba(235, 87, 87, 0.10);
-  --thisweek-bg: rgba(242, 201, 76, 0.08);
-  --later-bg: rgba(187, 107, 217, 0.10);
-
-  /* ── Tekst ── */
-  --text: #FFFFFF;
-  /* Nazwy zadań, headery */
-  --text-2: #C8C8C8;
-  /* Drugorzędne */
-  --text-3: #A0A0A0;
-  /* Daty, meta, pomocnicze */
-  --text-4: #5A5A5A;
-  /* Bardzo jasne placeholdy */
-
-  /* ── Dark surfaces (header / nav) ── */
-  --dark: #0D0D0D;
-  --dark-2: #161616;
-  --dark-3: #1E1E1E;
-  --dark-4: #2C2C2C;
+  /* Dark surfaces (header/nav w light mode) */
+  --dark: #1C1C28;
+  --dark-2: #252535;
+  --dark-3: #2E2E40;
+  --dark-4: #383850;
   --dark-border: rgba(255, 255, 255, 0.07);
   --dark-border-strong: rgba(255, 255, 255, 0.12);
 
-  /* ── Radius ── */
+  /* Tła kart statusowych */
+  --overdue-bg: #FFF0F0;
+  --thisweek-bg: #FFFBF0;
+  --later-bg: #F8F4FF;
+
+  /* Akcenty */
+  --coral: #F06A4D;
+  --coral-2: #FF8A6A;
+  --coral-glow: rgba(240, 106, 77, 0.25);
+  --blue: #2563EB;
+  --blue-glow: rgba(37, 99, 235, 0.20);
+
+  /* Wstecz-compat aliasy */
+  --amber: var(--coral);
+  --amber-2: var(--coral-2);
+  --amber-bg: rgba(240, 106, 77, 0.12);
+  --amber-glow: var(--coral-glow);
+
+  /* Statusy — identyczne w obu motywach */
+  --red: #EB5757;
+  --yellow: #F2C94C;
+  --green: #27AE60;
+  --purple: #BB6BD9;
+  --orange: #F06A4D;
+
+  /* Radius */
   --r-sm: 8px;
   --r-md: 12px;
   --r-lg: 16px;
   --r-xl: 20px;
   --r-full: 9999px;
 
-  /* ── Shadows ── */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
-  --shadow-amber: 0 4px 20px rgba(240, 106, 77, 0.40);
-  --shadow-coral: 0 4px 20px rgba(240, 106, 77, 0.40);
+  /* Cienie (light — delikatniejsze) */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
+  --shadow-amber: 0 4px 16px rgba(240, 106, 77, 0.30);
+  --shadow-coral: 0 4px 16px rgba(240, 106, 77, 0.30);
 
-  /* ── Transitions ── */
+  /* Transitions */
   --t-fast: 0.12s ease;
   --t-mid: 0.20s ease;
   --t-slow: 0.35s ease;
 
-  /* ── Layout ── */
+  /* Layout */
   --tab-h: 60px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* ── Brak oddzielnego dark-mode — domyślna jest ciemna ── */
+/* ══════════════════════════════════════════════
+   DARK MODE — data-theme="dark"
+   Szarości (nie czysta czerń), bardziej aksamitne
+   ══════════════════════════════════════════════ */
+[data-theme="dark"] {
+  /* Tła — szarości zamiast czerni */
+  --bg: #1C1C1E;
+  /* Ciemny szary (iOS-style) */
+  --card: #2C2C2E;
+  /* Karta — wyraźnie jaśniejsza */
+  --card-2: #3A3A3C;
+  /* Elevated surface */
 
+  /* Obramowania */
+  --border: #48484A;
+  /* Widoczne, nie zbyt głośne */
+
+  /* Tekst */
+  --text: #F2F2F7;
+  /* Prawie biały */
+  --text-2: #EBEBF5;
+  /* Lekko przygaszone */
+  --text-3: #AEAEB2;
+  /* Szary pomocniczy */
+  --text-4: #636366;
+  /* Placeholder */
+
+  /* Dark surfaces (nav bar, header) */
+  --dark: #141416;
+  --dark-2: #1C1C1E;
+  --dark-3: #2C2C2E;
+  --dark-4: #3A3A3C;
+
+  /* Tła kart statusowych */
+  --overdue-bg: rgba(235, 87, 87, 0.10);
+  --thisweek-bg: rgba(242, 201, 76, 0.08);
+  --later-bg: rgba(187, 107, 217, 0.10);
+
+  /* Akcenty — nieco bardziej nasyconye w dark */
+  --coral-glow: rgba(240, 106, 77, 0.30);
+  --amber-bg: rgba(240, 106, 77, 0.15);
+
+  /* Cienie — wyraźniejsze w dark */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.50);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.65);
+  --shadow-amber: 0 4px 20px rgba(240, 106, 77, 0.40);
+  --shadow-coral: 0 4px 20px rgba(240, 106, 77, 0.40);
+}
+
+/* ── Base ── */
 html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
@@ -116,6 +162,7 @@ body {
   margin: 0 auto;
   overflow-x: hidden;
   position: relative;
+  transition: background var(--t-mid), color var(--t-mid);
 }
 
 /* ── Typography ── */

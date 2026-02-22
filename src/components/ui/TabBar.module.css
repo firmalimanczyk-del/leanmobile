@@ -9,12 +9,20 @@
     max-width: 540px;
     display: flex;
     align-items: flex-end;
-    background: #0D0D0D;
-    border-top: 1px solid #2C2C2C;
+    /* W dark: ciemne, w light: białe z cieniem od góry */
+    background: var(--dark);
+    border-top: 1px solid var(--dark-border-strong);
     z-index: 100;
     padding-bottom: var(--safe-bottom);
-    /* subtelny gradient od góry */
-    background: linear-gradient(0deg, #0A0A0A 0%, #0D0D0D 100%);
+    transition: background var(--t-mid);
+}
+
+/* Light mode override — nav bar jasny */
+[data-theme="light"] .tabBar,
+:root:not([data-theme="dark"]) .tabBar {
+    background: #FFFFFF;
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .tab {
@@ -23,7 +31,7 @@
     border: none;
     background: none;
     font-size: 11px;
-    color: #4A4A4A;
+    color: var(--text-3);
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -36,12 +44,12 @@
 }
 
 .tab:active {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(128, 128, 128, 0.08);
 }
 
-/* Aktywna zakładka — coral z glow */
+/* Aktywna zakładka — coral */
 .tab.active {
-    color: #F06A4D;
+    color: var(--coral);
 }
 
 /* Kreska na górze aktywnej zakładki */
@@ -54,8 +62,8 @@
     width: 28px;
     height: 2px;
     border-radius: 0 0 2px 2px;
-    background: #F06A4D;
-    box-shadow: 0 0 8px rgba(240, 106, 77, 0.6);
+    background: var(--coral);
+    box-shadow: 0 0 8px var(--coral-glow);
 }
 
 .icon {
@@ -82,7 +90,7 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: #F06A4D;
+    background: var(--coral);
     border: none;
     font-size: 24px;
     color: #000;
@@ -90,10 +98,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* głęboki glow coral */
     box-shadow:
-        0 4px 20px rgba(240, 106, 77, 0.55),
-        0 2px 8px rgba(0, 0, 0, 0.40);
+        0 4px 20px var(--coral-glow),
+        0 2px 8px rgba(0, 0, 0, 0.25);
     transition: transform 0.12s ease, box-shadow 0.12s ease;
     position: relative;
     bottom: 8px;
@@ -104,8 +111,8 @@
 .fab:active {
     transform: scale(0.91);
     box-shadow:
-        0 2px 10px rgba(240, 106, 77, 0.4),
-        0 1px 4px rgba(0, 0, 0, 0.3);
+        0 2px 10px var(--coral-glow),
+        0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Pulsujący ring */
@@ -114,7 +121,7 @@
     position: absolute;
     inset: -4px;
     border-radius: 50%;
-    border: 2px solid rgba(240, 106, 77, 0.30);
+    border: 2px solid rgba(240, 106, 77, 0.28);
     animation: fabPulse 2.5s ease-in-out infinite;
 }
 
