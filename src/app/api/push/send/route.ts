@@ -6,7 +6,7 @@ import webpush from 'web-push';
 
 const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || '';
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:admin@limanczyk.pl';
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:projekty@limanczyk.pl';
 
 if (VAPID_PUBLIC && VAPID_PRIVATE) {
     webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
