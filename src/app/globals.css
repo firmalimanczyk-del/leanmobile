@@ -11,89 +11,77 @@
 }
 
 /* ══════════════════════════════════════════════
-   LIGHT MODE — domyślny (`:root`)
-   Windows 7 Aero — szkło, przezroczystość, błękit
+   LIGHT MODE — Windows 11 Fluent UI
+   Czyste, jasne, Mica-like surfaces
    ══════════════════════════════════════════════ */
 :root {
-  --font: 'Segoe UI', 'Inter', -apple-system, Roboto, sans-serif;
+  --font: 'Segoe UI Variable', 'Segoe UI', 'Inter', -apple-system, Roboto, sans-serif;
 
-  /* Tła — jasny błękit jak desktop Win7 */
-  --bg: #D4E4F7;
-  /* Główne tło — jasny niebieski */
-  --card: rgba(255, 255, 255, 0.82);
-  /* Karty — Aero Glass (przezroczyste) */
-  --card-2: rgba(240, 246, 255, 0.75);
-  /* Karty podwyższone — szkło */
+  /* Tła — Windows 11 Mica */
+  --bg: #F3F3F3;
+  --card: #FFFFFF;
+  --card-2: #F9F9F9;
 
-  /* Obramowania — szklane */
-  --border: rgba(120, 170, 230, 0.45);
+  /* Obramowania — subtelne Win11 */
+  --border: #E5E5E5;
 
-  /* Tekst */
-  --text: #1E1E1E;
-  /* Główny — ciemny */
-  --text-2: #3C3C3C;
-  /* Drugorzędny */
-  --text-3: #6D7B8D;
-  /* Pomocniczy — szaro-niebieski */
-  --text-4: #9EAAB8;
-  /* Placeholder */
+  /* Tekst — Fluent neutral */
+  --text: #1A1A1A;
+  --text-2: #424242;
+  --text-3: #707070;
+  --text-4: #A0A0A0;
 
-  /* Dark surfaces (header = taskbar Win7) */
-  --dark: #1B2838;
-  --dark-2: #243447;
-  --dark-3: #2D4156;
-  --dark-4: #365065;
-  --dark-border: rgba(100, 180, 255, 0.15);
-  --dark-border-strong: rgba(100, 180, 255, 0.25);
+  /* Dark surfaces (header/nav) — Win11 ciemny pasek */
+  --dark: #202020;
+  --dark-2: #2D2D2D;
+  --dark-3: #383838;
+  --dark-4: #444444;
+  --dark-border: rgba(255, 255, 255, 0.08);
+  --dark-border-strong: rgba(255, 255, 255, 0.14);
 
   /* Tła kart statusowych */
-  --overdue-bg: rgba(255, 200, 200, 0.50);
-  --thisweek-bg: rgba(255, 240, 200, 0.50);
-  --later-bg: rgba(220, 210, 255, 0.50);
+  --overdue-bg: #FDE8E8;
+  --thisweek-bg: #FFF4DB;
+  --later-bg: #F0EBFA;
 
-  /* Akcenty — Windows Aero Blue */
-  --coral: #3399FF;
-  --coral-2: #5BB0FF;
-  --coral-glow: rgba(51, 153, 255, 0.30);
-  --blue: #3399FF;
-  --blue-glow: rgba(51, 153, 255, 0.25);
+  /* Akcenty — Fluent Blue (#0078D4) */
+  --coral: #0078D4;
+  --coral-2: #1A8CD8;
+  --coral-glow: rgba(0, 120, 212, 0.22);
+  --blue: #0078D4;
+  --blue-glow: rgba(0, 120, 212, 0.18);
 
   /* Wstecz-compat aliasy */
   --amber: var(--coral);
   --amber-2: var(--coral-2);
-  --amber-bg: rgba(51, 153, 255, 0.12);
+  --amber-bg: rgba(0, 120, 212, 0.08);
   --amber-glow: var(--coral-glow);
 
-  /* Statusy — klasyczne Win7 */
-  --red: #D44B4B;
-  --yellow: #E8A820;
-  --green: #2EA043;
-  --purple: #8B5FC7;
-  --orange: #E07020;
+  /* Statusy — Fluent colors */
+  --red: #D13438;
+  --yellow: #CA8A04;
+  --green: #107C10;
+  --purple: #8764B8;
+  --orange: #DA7A0F;
 
-  /* Radius — lekko mniejsze jak Win7 */
+  /* Radius — Win11 rounded (8px standard) */
   --r-sm: 4px;
-  --r-md: 6px;
-  --r-lg: 8px;
-  --r-xl: 10px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
   --r-full: 9999px;
 
-  /* Cienie — Aero glass shadow */
-  --shadow-sm: 0 1px 3px rgba(0, 40, 100, 0.10);
-  --shadow-md: 0 4px 16px rgba(0, 40, 100, 0.12);
-  --shadow-lg: 0 8px 32px rgba(0, 40, 100, 0.20);
-  --shadow-amber: 0 4px 16px rgba(51, 153, 255, 0.35);
-  --shadow-coral: 0 4px 16px rgba(51, 153, 255, 0.35);
-
-  /* Aero Glass extras */
-  --glass-blur: 12px;
-  --glass-border: 1px solid rgba(255, 255, 255, 0.55);
-  --glass-shine: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.02) 100%);
+  /* Cienie — Fluent elevation */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.10);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.14);
+  --shadow-amber: 0 2px 12px rgba(0, 120, 212, 0.25);
+  --shadow-coral: 0 2px 12px rgba(0, 120, 212, 0.25);
 
   /* Transitions */
-  --t-fast: 0.12s ease;
-  --t-mid: 0.20s ease;
-  --t-slow: 0.35s ease;
+  --t-fast: 0.10s ease;
+  --t-mid: 0.18s ease;
+  --t-slow: 0.30s ease;
 
   /* Layout */
   --tab-h: 60px;
@@ -101,53 +89,60 @@
 }
 
 /* ══════════════════════════════════════════════
-   DARK MODE — data-theme="dark"
-   Szarości (nie czysta czerń), bardziej aksamitne
+   DARK MODE — Seda (DeviantArt Win10)
+   Ciemne szarości, subtelne niebiesko-szare akcenty
    ══════════════════════════════════════════════ */
 [data-theme="dark"] {
-  /* Tła — szarości zamiast czerni */
-  --bg: #1C1C1E;
-  /* Ciemny szary (iOS-style) */
-  --card: #2C2C2E;
-  /* Karta — wyraźnie jaśniejsza */
-  --card-2: #3A3A3C;
-  /* Elevated surface */
+  /* Tła — Seda dark grays */
+  --bg: #1E1E1E;
+  --card: #252526;
+  --card-2: #2D2D30;
 
-  /* Obramowania */
-  --border: #48484A;
-  /* Widoczne, nie zbyt głośne */
+  /* Obramowania — VS Code style */
+  --border: #3E3E42;
 
   /* Tekst */
-  --text: #F2F2F7;
-  /* Prawie biały */
-  --text-2: #EBEBF5;
-  /* Lekko przygaszone */
-  --text-3: #AEAEB2;
-  /* Szary pomocniczy */
-  --text-4: #636366;
-  /* Placeholder */
+  --text: #E4E4E4;
+  --text-2: #CCCCCC;
+  --text-3: #858585;
+  --text-4: #5A5A5A;
 
-  /* Dark surfaces (nav bar, header) */
-  --dark: #141416;
-  --dark-2: #1C1C1E;
-  --dark-3: #2C2C2E;
-  --dark-4: #3A3A3C;
+  /* Dark surfaces (header) — jeszcze ciemniejsze */
+  --dark: #161618;
+  --dark-2: #1E1E1E;
+  --dark-3: #252526;
+  --dark-4: #333333;
+  --dark-border: rgba(255, 255, 255, 0.06);
+  --dark-border-strong: rgba(255, 255, 255, 0.12);
 
   /* Tła kart statusowych */
-  --overdue-bg: rgba(235, 87, 87, 0.10);
-  --thisweek-bg: rgba(242, 201, 76, 0.08);
-  --later-bg: rgba(187, 107, 217, 0.10);
+  --overdue-bg: rgba(209, 52, 56, 0.12);
+  --thisweek-bg: rgba(202, 138, 4, 0.10);
+  --later-bg: rgba(135, 100, 184, 0.10);
 
-  /* Akcenty — nieco bardziej nasyconye w dark */
-  --coral-glow: rgba(240, 106, 77, 0.30);
-  --amber-bg: rgba(240, 106, 77, 0.15);
+  /* Akcenty — Seda blue-gray */
+  --coral: #4B7BEC;
+  --coral-2: #6C96F0;
+  --coral-glow: rgba(75, 123, 236, 0.25);
+  --blue: #4B7BEC;
+  --blue-glow: rgba(75, 123, 236, 0.20);
+  --amber: var(--coral);
+  --amber-2: var(--coral-2);
+  --amber-bg: rgba(75, 123, 236, 0.12);
 
-  /* Cienie — wyraźniejsze w dark */
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.50);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.65);
-  --shadow-amber: 0 4px 20px rgba(240, 106, 77, 0.40);
-  --shadow-coral: 0 4px 20px rgba(240, 106, 77, 0.40);
+  /* Statusy — Seda muted */
+  --red: #E06C75;
+  --yellow: #E5C07B;
+  --green: #98C379;
+  --purple: #C678DD;
+  --orange: #D19A66;
+
+  /* Cienie — głębsze w dark */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.40);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.70);
+  --shadow-amber: 0 4px 16px rgba(75, 123, 236, 0.35);
+  --shadow-coral: 0 4px 16px rgba(75, 123, 236, 0.35);
 }
 
 /* ── Base ── */
@@ -159,8 +154,7 @@ html {
 
 body {
   font-family: var(--font);
-  background: linear-gradient(180deg, #3A7BD5 0%, #6CB4EE 40%, #B4D6F0 70%, #D4E4F7 100%);
-  background-attachment: fixed;
+  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   min-height: 100dvh;
@@ -169,11 +163,6 @@ body {
   overflow-x: hidden;
   position: relative;
   transition: background var(--t-mid), color var(--t-mid);
-}
-
-/* Aero Glass — dark mode wyłącza gradient */
-[data-theme="dark"] body {
-  background: var(--bg);
 }
 
 /* ── Typography ── */

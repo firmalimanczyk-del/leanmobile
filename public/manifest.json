@@ -4,8 +4,8 @@
     "description": "Mobile interface for Leantime",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#D4E4F7",
-    "theme_color": "#1B2838",
+    "background_color": "#F3F3F3",
+    "theme_color": "#202020",
     "icons": [
         {
             "src": "/icons/icon-192x192.png",
