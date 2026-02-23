@@ -12,64 +12,64 @@
 
 /* ══════════════════════════════════════════════
    LIGHT MODE — domyślny (`:root`)
-   Czyste białe tło, ciemny tekst
+   Earthy Sage — kolory ziemi, profesjonalne
    ══════════════════════════════════════════════ */
 :root {
   --font: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-  /* Tła */
-  --bg: #F2F3F7;
-  /* Główne tło — jasny szary */
+  /* Tła — ciepły szałwiowy */
+  --bg: #CAD2C5;
+  /* Główne tło — jasna szałwia */
   --card: #FFFFFF;
   /* Karty, kontenery */
-  --card-2: #F8F9FC;
-  /* Karty podwyższone */
+  --card-2: #E8EDE5;
+  /* Karty podwyższone — delikatna szałwia */
 
   /* Obramowania */
-  --border: #E2E4EE;
+  --border: #B5C4B1;
 
   /* Tekst */
-  --text: #12121A;
-  /* Główny — prawie czarny */
-  --text-2: #40404F;
-  /* Drugorzędny */
-  --text-3: #7A7A8C;
-  /* Pomocniczy — daty, meta */
-  --text-4: #B0B0C0;
+  --text: #2F3E46;
+  /* Główny — bardzo ciemny szary-zielony */
+  --text-2: #354F52;
+  /* Drugorzędny — ciemny teal */
+  --text-3: #84A98C;
+  /* Pomocniczy — średnia szałwia */
+  --text-4: #A3B8A0;
   /* Placeholder */
 
   /* Dark surfaces (header/nav w light mode) */
-  --dark: #1C1C28;
-  --dark-2: #252535;
-  --dark-3: #2E2E40;
-  --dark-4: #383850;
-  --dark-border: rgba(255, 255, 255, 0.07);
-  --dark-border-strong: rgba(255, 255, 255, 0.12);
+  --dark: #2F3E46;
+  --dark-2: #354F52;
+  --dark-3: #3E5C63;
+  --dark-4: #4A6B72;
+  --dark-border: rgba(255, 255, 255, 0.10);
+  --dark-border-strong: rgba(255, 255, 255, 0.15);
 
   /* Tła kart statusowych */
-  --overdue-bg: #FFF0F0;
-  --thisweek-bg: #FFFBF0;
-  --later-bg: #F8F4FF;
+  --overdue-bg: #FBEAE8;
+  --thisweek-bg: #FFF6E6;
+  --later-bg: #F0EBF5;
 
-  /* Akcenty */
-  --coral: #F06A4D;
-  --coral-2: #FF8A6A;
-  --coral-glow: rgba(240, 106, 77, 0.25);
-  --blue: #2563EB;
-  --blue-glow: rgba(37, 99, 235, 0.20);
+  /* Akcenty — ciemna szałwia zamiast koralu */
+  --coral: #52796F;
+  --coral-2: #6B9080;
+  --coral-glow: rgba(82, 121, 111, 0.25);
+  --blue: #52796F;
+  --blue-glow: rgba(82, 121, 111, 0.20);
 
   /* Wstecz-compat aliasy */
   --amber: var(--coral);
   --amber-2: var(--coral-2);
-  --amber-bg: rgba(240, 106, 77, 0.12);
+  --amber-bg: rgba(82, 121, 111, 0.12);
   --amber-glow: var(--coral-glow);
 
-  /* Statusy — identyczne w obu motywach */
-  --red: #EB5757;
-  --yellow: #F2C94C;
-  --green: #27AE60;
-  --purple: #BB6BD9;
-  --orange: #F06A4D;
+  /* Statusy — earthy tones */
+  --red: #C1574B;
+  --yellow: #D4A847;
+  --green: #52796F;
+  --purple: #8B6F8E;
+  --orange: #C17B4B;
 
   /* Radius */
   --r-sm: 8px;
@@ -78,12 +78,12 @@
   --r-xl: 20px;
   --r-full: 9999px;
 
-  /* Cienie (light — delikatniejsze) */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.10);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
-  --shadow-amber: 0 4px 16px rgba(240, 106, 77, 0.30);
-  --shadow-coral: 0 4px 16px rgba(240, 106, 77, 0.30);
+  /* Cienie (light — cieplejsze) */
+  --shadow-sm: 0 1px 3px rgba(47, 62, 70, 0.08);
+  --shadow-md: 0 4px 16px rgba(47, 62, 70, 0.10);
+  --shadow-lg: 0 12px 40px rgba(47, 62, 70, 0.18);
+  --shadow-amber: 0 4px 16px rgba(82, 121, 111, 0.30);
+  --shadow-coral: 0 4px 16px rgba(82, 121, 111, 0.30);
 
   /* Transitions */
   --t-fast: 0.12s ease;
