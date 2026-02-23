@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
 import { apiGetStatusLabels, apiGetProjects, apiGetUsers, FALLBACK_STATUS_LIST } from '@/lib/leantime-api';
 
@@ -15,8 +15,42 @@ import UpdatesScreen from '@/components/screens/UpdatesScreen';
 import AddUpdateScreen from '@/components/screens/AddUpdateScreen';
 import Toast from '@/components/ui/Toast';
 
+// ── Swipeable tabs: todos ↔ projects ──
+const SWIPE_TABS = ['todos', 'projects'] as const;
+const SWIPE_THRESHOLD = 50; // px
+
 export default function App() {
-  const { currentScreen, myUserId, setUser, myUserName, myUserEmail, theme, setStatusList, setAllProjects, setAllUsers } = useAppStore();
+  const { currentScreen, myUserId, setUser, myUserName, myUserEmail, theme, setStatusList, setAllProjects, setAllUsers, navigate } = useAppStore();
+
+  // ── Swipe handling ──
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+
+    // Ignore vertical swipes
+    if (Math.abs(dy) > Math.abs(dx)) return;
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+
+    // Only swipe on main tab screens
+    const idx = SWIPE_TABS.indexOf(currentScreen as typeof SWIPE_TABS[number]);
+    if (idx === -1) return;
+
+    if (dx > 0 && idx > 0) {
+      // Swipe right → previous tab (Zadania)
+      navigate(SWIPE_TABS[idx - 1]);
+    } else if (dx < 0 && idx < SWIPE_TABS.length - 1) {
+      // Swipe left → next tab (Projekty)
+      navigate(SWIPE_TABS[idx + 1]);
+    }
+  }, [currentScreen, navigate]);
 
   // Zastosuj motyw przy starcie i przy każdej zmianie
   useEffect(() => {
@@ -50,7 +84,7 @@ export default function App() {
   }, [myUserId]);
 
   return (
-    <main>
+    <main onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {currentScreen === 'login' && <LoginScreen />}
       {currentScreen === 'todos' && <TodosScreen />}
       {currentScreen === 'projects' && <ProjectsScreen />}

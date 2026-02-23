@@ -9,7 +9,7 @@ import styles from './TabBar.module.css';
 interface Tab { screen: Screen; label: string; icon: string }
 
 const TABS_LEFT: Tab[] = [
-    { screen: 'todos', label: 'Moje', icon: '📋' },
+    { screen: 'todos', label: 'Zadania', icon: '📋' },
 ];
 const TABS_RIGHT: Tab[] = [
     { screen: 'projects', label: 'Projekty', icon: '📁' },
