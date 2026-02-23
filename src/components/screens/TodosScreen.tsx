@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { apiGetAllTasks, DONE_STATUSES, fmtShort, dsDate } from '@/lib/leantime-api';
 import { showToast } from '@/components/ui/Toast';
+import { isPushSupported, subscribeToPush, sendTestPush, getPushPermission } from '@/lib/push-utils';
 import TabBar from '@/components/ui/TabBar';
 import StatusSheet from '@/components/ui/StatusSheet';
 import styles from './Screen.module.css';
@@ -33,6 +34,32 @@ export default function TodosScreen() {
     const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const getInitials = () => (myUserName ? myUserName.split(' ').map((w: string) => w[0] || '').join('').toUpperCase().slice(0, 2) : '?');
+
+    // ── Push Notifications ──────────────────────────────────
+    const [pushState, setPushState] = useState<'idle' | 'subscribing' | 'subscribed' | 'unsupported'>('idle');
+
+    useEffect(() => {
+        isPushSupported().then(ok => {
+            if (!ok) setPushState('unsupported');
+            else getPushPermission().then(p => { if (p === 'granted') setPushState('subscribed'); });
+        });
+    }, []);
+
+    const handlePush = async () => {
+        if (pushState === 'unsupported') { showToast('Twoja przeglądarka nie wspiera powiadomień push', 'error'); return; }
+        if (pushState === 'subscribing') return;
+        setPushState('subscribing');
+        const ok = await subscribeToPush(myUserId || '');
+        if (ok) {
+            setPushState('subscribed');
+            showToast('🔔 Powiadomienia włączone!');
+            // Send test notification
+            setTimeout(() => sendTestPush(myUserId || ''), 1500);
+        } else {
+            setPushState('idle');
+            showToast('Nie udało się włączyć powiadomień', 'error');
+        }
+    };
 
     const activeProjectIds = new Set(
         allProjects.filter(p => { const s = p.state != null ? +p.state : 0; return s !== 1 && s !== -1 && p.status !== 'closed' && p.status !== 'archived'; }).map(p => String(p.id))
@@ -155,6 +182,18 @@ export default function TodosScreen() {
                 >
                     ⚙️
                 </button>
+                {pushState !== 'unsupported' && (
+                    <button
+                        id="todos-push"
+                        className={`${styles.hbtn} ${pushState === 'subscribed' ? styles.hbtnPrimary : ''}`}
+                        onClick={handlePush}
+                        disabled={pushState === 'subscribing'}
+                        aria-label="Powiadomienia push"
+                        title={pushState === 'subscribed' ? 'Powiadomienia włączone' : 'Włącz powiadomienia'}
+                    >
+                        {pushState === 'subscribing' ? '⏳' : pushState === 'subscribed' ? '🔔' : '🔕'}
+                    </button>
+                )}
                 <button id="todos-refresh" className={styles.hbtn} onClick={() => load()} aria-label="Odśwież" disabled={loadingTodos}>🔄</button>
                 <button id="todos-add" className={`${styles.hbtn} ${styles.hbtnPrimary}`} onClick={() => navigate('addTask')} aria-label="Dodaj zadanie">+</button>
                 <button id="todos-avatar" className={styles.avatarBtn} onClick={() => { if (confirm(`Wylogować ${myUserName}?`)) { clearUser(); showToast('Wylogowano'); } }}>{getInitials()}</button>
