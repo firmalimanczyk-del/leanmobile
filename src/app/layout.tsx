@@ -5,13 +5,16 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'LeanMobile — Leantime na telefon',
-  description: 'Mobilna nakładka na Leantime. Zarządzaj zadaniami i projektami z każdego miejsca.',
-  manifest: '/manifest.json',
+  title: "LeanMobile",
+  description: "Aplikacja mobilna dla Leantime",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'LeanMobile',
+    statusBarStyle: "default",
+    title: "LeanMobile",
+  },
+  formatDetection: {
+    telephone: false,
   },
 };
 
