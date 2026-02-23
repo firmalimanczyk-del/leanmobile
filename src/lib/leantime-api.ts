@@ -317,89 +317,151 @@ function guessColor(cls: string, idx: number): string {
     return FALLBACK_COLORS[idx % FALLBACK_COLORS.length];
 }
 
+// ── Fallback lista statusów (musi odpowiadać Leantime statusListSeed) ──
+// WAŻNE: Archiwizowane = -1 (NIE 5!) — potwierdzone kodem źródłowym Leantime 3.x
 export const FALLBACK_STATUS_LIST: LtStatusLabel[] = [
     { v: '3', l: 'Nowe', c: '#2563EB' },
     { v: '1', l: 'Zablokowane', c: '#DC3545' },
     { v: '4', l: 'W toku', c: '#F59E0B' },
     { v: '2', l: 'Oczekuje na akceptację', c: '#F5A623' },
     { v: '0', l: 'Zrobione', c: '#28A745' },
-    { v: '5', l: 'Zarchiwizowane', c: '#6B7280' },
+    { v: '-1', l: 'Zarchiwizowane', c: '#6B7280' },
 ];
 
-export const DONE_STATUSES = new Set(['0', '5']);
+// Statusy uznawane za "zakończone" — Leantime statusType DONE = 0 (done) i -1 (archived)
+export const DONE_STATUSES = new Set(['0', '-1']);
+
+// Leantime zwraca klucze tłumaczeń (np. "status.new") zamiast gotowych nazw
+const LEANTIME_I18N: Record<string, string> = {
+    'status.new': 'Nowe',
+    'status.blocked': 'Zablokowane',
+    'status.in_progress': 'W toku',
+    'status.in_review': 'W przeglądzie',
+    'status.waiting_for_approval': 'Oczekuje na akceptację',
+    'status.done': 'Zrobione',
+    'status.archived': 'Zarchiwizowane',
+};
+function translateLabel(raw: string): string {
+    return LEANTIME_I18N[raw] || raw;
+}
 
 export async function apiGetStatusLabels(): Promise<LtStatusLabel[]> {
     try {
         const raw = await rpc('leantime.rpc.tickets.getStatusLabels');
+        console.log('[STATUS-DEBUG] raw getStatusLabels response:', JSON.stringify(raw));
         if (raw && typeof raw === 'object') {
             const list: LtStatusLabel[] = [];
             if (!Array.isArray(raw)) {
+                // Format Leantime 3.x: { "3": { name: "status.new", class: "label-info", statusType: "NEW", sortKey: 1 }, ... }
+                // lub starszy: { "3": "Nowe", ... }
+                const entries = Object.entries(raw as Record<string, unknown>);
+                // Sortuj wg sortKey jeśli dostępne
+                const sorted = entries.sort((a, b) => {
+                    const aSort = typeof a[1] === 'object' && a[1] !== null ? ((a[1] as Record<string, unknown>).sortKey as number ?? 99) : 99;
+                    const bSort = typeof b[1] === 'object' && b[1] !== null ? ((b[1] as Record<string, unknown>).sortKey as number ?? 99) : 99;
+                    return aSort - bSort;
+                });
                 let idx = 0;
-                for (const [code, val] of Object.entries(raw as Record<string, unknown>)) {
-                    const v = val as Record<string, string>;
-                    const label = typeof val === 'string' ? val : (v.name || v.label || v.title || `Status ${code}`);
-                    const cls = typeof val === 'object' ? (v.class || v.className || v.color || '') : '';
+                for (const [code, val] of sorted) {
+                    let label: string;
+                    let cls = '';
+                    if (typeof val === 'string') {
+                        label = translateLabel(val);
+                    } else if (val && typeof val === 'object') {
+                        const v = val as Record<string, string>;
+                        const rawName = v.name || v.label || v.title || '';
+                        label = rawName ? translateLabel(rawName) : `Status ${code}`;
+                        cls = v.class || v.className || v.color || '';
+                    } else {
+                        label = `Status ${code}`;
+                    }
+                    console.log(`[STATUS-DEBUG] code=${code}, val=`, JSON.stringify(val), `→ label="${label}", cls="${cls}"`);
                     list.push({ v: String(code), l: label, c: guessColor(cls, idx) });
                     idx++;
                 }
             } else {
                 (raw as Record<string, unknown>[]).forEach((item, i) => {
                     const code = item.key || item.code || item.id || item.value || String(i);
-                    const label = (item.name || item.label || item.title || 'Status') as string;
+                    const rawName = (item.name || item.label || item.title || '') as string;
+                    const label = rawName ? translateLabel(rawName) : 'Status';
                     const cls = (item.class || item.className || item.color || '') as string;
+                    console.log(`[STATUS-DEBUG] array item ${i}:`, JSON.stringify(item), `→ code=${code}, label="${label}"`);
                     list.push({ v: String(code), l: label, c: guessColor(cls, i) });
                 });
             }
+            console.log('[STATUS-DEBUG] final list:', JSON.stringify(list));
             if (list.length) return list;
         }
-    } catch { /* fallback */ }
+    } catch (e) {
+        console.error('[STATUS-DEBUG] apiGetStatusLabels FAILED:', e);
+    }
+    console.warn('[STATUS-DEBUG] Using FALLBACK_STATUS_LIST');
     return FALLBACK_STATUS_LIST;
 }
 
 // ─── TASKS ───────────────────────────────────────────────────
 
 export async function apiGetAllTasks(): Promise<LtTask[]> {
+    let result: LtTask[] = [];
+
     // Próba 1: dedykowana metoda "moje zadania" (Leantime 3.x)
     try {
         const d = await rpc('leantime.rpc.tickets.getAll', { searchCriteria: { userId: 'current', currentProject: '' } });
         const arr = toArr<LtTask>(d);
-        if (arr.length > 0) return arr;
+        if (arr.length > 0) { result = arr; }
     } catch { /* próbuj dalej */ }
 
-    // Próba 2: getAllMyTickets / getMyTickets
-    try {
-        const d = await rpc('leantime.rpc.tickets.getMyTickets', {});
-        const arr = toArr<LtTask>(d);
-        if (arr.length > 0) return arr;
-    } catch { /* próbuj dalej */ }
+    if (!result.length) {
+        // Próba 2: getAllMyTickets / getMyTickets
+        try {
+            const d = await rpc('leantime.rpc.tickets.getMyTickets', {});
+            const arr = toArr<LtTask>(d);
+            if (arr.length > 0) { result = arr; }
+        } catch { /* próbuj dalej */ }
+    }
 
-    // Próba 3: getAll z pustym currentProject (pobiera wszystkie projekty)
-    try {
-        const d = await rpc('leantime.rpc.tickets.getAll', { searchCriteria: { currentProject: '' } });
-        const arr = toArr<LtTask>(d);
-        if (arr.length > 0) return arr;
-    } catch { /* próbuj dalej */ }
+    if (!result.length) {
+        // Próba 3: getAll z pustym currentProject (pobiera wszystkie projekty)
+        try {
+            const d = await rpc('leantime.rpc.tickets.getAll', { searchCriteria: { currentProject: '' } });
+            const arr = toArr<LtTask>(d);
+            if (arr.length > 0) { result = arr; }
+        } catch { /* próbuj dalej */ }
+    }
 
-    // Próba 4: getAllBySearchCriteria
-    try {
-        const d = await rpc('leantime.rpc.tickets.getAllBySearchCriteria', { searchCriteria: {} });
-        const arr = toArr<LtTask>(d);
-        if (arr.length > 0) return arr;
-    } catch { /* próbuj dalej */ }
+    if (!result.length) {
+        // Próba 4: getAllBySearchCriteria
+        try {
+            const d = await rpc('leantime.rpc.tickets.getAllBySearchCriteria', { searchCriteria: {} });
+            const arr = toArr<LtTask>(d);
+            if (arr.length > 0) { result = arr; }
+        } catch { /* próbuj dalej */ }
+    }
 
-    // Próba 5: getAll z {} (ostateczny fallback)
-    const d = await rpc('leantime.rpc.tickets.getAll', {});
-    return toArr<LtTask>(d);
+    if (!result.length) {
+        // Próba 5: getAll z {} (ostateczny fallback)
+        const d = await rpc('leantime.rpc.tickets.getAll', {});
+        result = toArr<LtTask>(d);
+    }
+
+    // Filtruj milestony — Leantime PC wyświetla je osobno
+    return result.filter(t => t.type !== 'milestone');
 }
 
 export async function apiGetProjectTasks(projectId: string | number): Promise<LtTask[]> {
+    let arr: LtTask[];
     try {
         const d = await rpc('leantime.rpc.tickets.getAll', { searchCriteria: { currentProject: projectId } });
-        return toArr<LtTask>(d);
+        arr = toArr<LtTask>(d);
     } catch {
         const d = await rpc('leantime.rpc.tickets.getAll', { projectId });
-        return toArr<LtTask>(d);
+        arr = toArr<LtTask>(d);
     }
+    // Filtruj milestony — Leantime PC wyświetla je osobno, nie na liście zadań
+    const filtered = arr.filter(t => t.type !== 'milestone');
+    console.log(`[TASKS-DEBUG] Project ${projectId}: ${arr.length} total, ${filtered.length} after filtering milestones. Status values:`,
+        filtered.map(t => ({ id: t.id, headline: t.headline?.substring(0, 40), status: t.status, type: t.type })));
+    return filtered;
 }
 
 export async function apiGetMilestones(projectId: string | number): Promise<LtMilestone[]> {

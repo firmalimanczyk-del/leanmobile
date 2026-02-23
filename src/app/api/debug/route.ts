@@ -3,7 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const LEANTIME_URL = (process.env.LEANTIME_URL || '').replace(/\/$/, '');
+const LEANTIME_URL = (process.env.LEANTIME_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 const API_KEY = process.env.LEANTIME_API_KEY || '';
 
 export async function GET(req: NextRequest) {

@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const LEANTIME_URL = (process.env.LEANTIME_URL || '').replace(/\/$/, '');
+const LEANTIME_URL = (process.env.LEANTIME_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
 function extractSessionCookie(setCookieHeader: string): string {
     if (!setCookieHeader) return '';

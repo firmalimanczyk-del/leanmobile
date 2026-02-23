@@ -2,7 +2,7 @@
 
 // StatusSheet.tsx — Bottom sheet do szybkiej zmiany statusu zadania (D)
 import { useState } from 'react';
-import { apiChangeStatus } from '@/lib/leantime-api';
+import { apiChangeStatus, DONE_STATUSES } from '@/lib/leantime-api';
 import { useAppStore } from '@/lib/store';
 import { showToast } from '@/components/ui/Toast';
 import type { LtTask, LtStatusLabel } from '@/lib/leantime-api';
@@ -17,7 +17,6 @@ interface Props {
 export default function StatusSheet({ task, statusList, onClose }: Props) {
     const { updateTaskInStore, removeTaskFromStore } = useAppStore();
     const [saving, setSaving] = useState<string | null>(null);
-    const DONE = new Set(['0', '5']);
 
     const changeStatus = async (status: LtStatusLabel) => {
         if (saving) return;
@@ -27,7 +26,7 @@ export default function StatusSheet({ task, statusList, onClose }: Props) {
             updateTaskInStore(task.id, { status: status.v });
             await apiChangeStatus(task.id, status.v);
             // Jeśli ukończone — usuń z listy "Moje"
-            if (DONE.has(status.v)) {
+            if (DONE_STATUSES.has(status.v)) {
                 removeTaskFromStore(task.id);
                 showToast(`✅ Ukończono: ${task.headline || task.title || ''}`, 'success');
             } else {
