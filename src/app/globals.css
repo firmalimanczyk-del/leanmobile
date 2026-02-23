@@ -12,78 +12,83 @@
 
 /* ══════════════════════════════════════════════
    LIGHT MODE — domyślny (`:root`)
-   Earthy Sage — kolory ziemi, profesjonalne
+   Windows 7 Aero — szkło, przezroczystość, błękit
    ══════════════════════════════════════════════ */
 :root {
-  --font: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font: 'Segoe UI', 'Inter', -apple-system, Roboto, sans-serif;
 
-  /* Tła — ciepły szałwiowy */
-  --bg: #CAD2C5;
-  /* Główne tło — jasna szałwia */
-  --card: #FFFFFF;
-  /* Karty, kontenery */
-  --card-2: #E8EDE5;
-  /* Karty podwyższone — delikatna szałwia */
+  /* Tła — jasny błękit jak desktop Win7 */
+  --bg: #D4E4F7;
+  /* Główne tło — jasny niebieski */
+  --card: rgba(255, 255, 255, 0.82);
+  /* Karty — Aero Glass (przezroczyste) */
+  --card-2: rgba(240, 246, 255, 0.75);
+  /* Karty podwyższone — szkło */
 
-  /* Obramowania */
-  --border: #B5C4B1;
+  /* Obramowania — szklane */
+  --border: rgba(120, 170, 230, 0.45);
 
   /* Tekst */
-  --text: #2F3E46;
-  /* Główny — bardzo ciemny szary-zielony */
-  --text-2: #354F52;
-  /* Drugorzędny — ciemny teal */
-  --text-3: #84A98C;
-  /* Pomocniczy — średnia szałwia */
-  --text-4: #A3B8A0;
+  --text: #1E1E1E;
+  /* Główny — ciemny */
+  --text-2: #3C3C3C;
+  /* Drugorzędny */
+  --text-3: #6D7B8D;
+  /* Pomocniczy — szaro-niebieski */
+  --text-4: #9EAAB8;
   /* Placeholder */
 
-  /* Dark surfaces (header/nav w light mode) */
-  --dark: #2F3E46;
-  --dark-2: #354F52;
-  --dark-3: #3E5C63;
-  --dark-4: #4A6B72;
-  --dark-border: rgba(255, 255, 255, 0.10);
-  --dark-border-strong: rgba(255, 255, 255, 0.15);
+  /* Dark surfaces (header = taskbar Win7) */
+  --dark: #1B2838;
+  --dark-2: #243447;
+  --dark-3: #2D4156;
+  --dark-4: #365065;
+  --dark-border: rgba(100, 180, 255, 0.15);
+  --dark-border-strong: rgba(100, 180, 255, 0.25);
 
   /* Tła kart statusowych */
-  --overdue-bg: #FBEAE8;
-  --thisweek-bg: #FFF6E6;
-  --later-bg: #F0EBF5;
+  --overdue-bg: rgba(255, 200, 200, 0.50);
+  --thisweek-bg: rgba(255, 240, 200, 0.50);
+  --later-bg: rgba(220, 210, 255, 0.50);
 
-  /* Akcenty — ciemna szałwia zamiast koralu */
-  --coral: #52796F;
-  --coral-2: #6B9080;
-  --coral-glow: rgba(82, 121, 111, 0.25);
-  --blue: #52796F;
-  --blue-glow: rgba(82, 121, 111, 0.20);
+  /* Akcenty — Windows Aero Blue */
+  --coral: #3399FF;
+  --coral-2: #5BB0FF;
+  --coral-glow: rgba(51, 153, 255, 0.30);
+  --blue: #3399FF;
+  --blue-glow: rgba(51, 153, 255, 0.25);
 
   /* Wstecz-compat aliasy */
   --amber: var(--coral);
   --amber-2: var(--coral-2);
-  --amber-bg: rgba(82, 121, 111, 0.12);
+  --amber-bg: rgba(51, 153, 255, 0.12);
   --amber-glow: var(--coral-glow);
 
-  /* Statusy — earthy tones */
-  --red: #C1574B;
-  --yellow: #D4A847;
-  --green: #52796F;
-  --purple: #8B6F8E;
-  --orange: #C17B4B;
+  /* Statusy — klasyczne Win7 */
+  --red: #D44B4B;
+  --yellow: #E8A820;
+  --green: #2EA043;
+  --purple: #8B5FC7;
+  --orange: #E07020;
 
-  /* Radius */
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --r-xl: 20px;
+  /* Radius — lekko mniejsze jak Win7 */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+  --r-xl: 10px;
   --r-full: 9999px;
 
-  /* Cienie (light — cieplejsze) */
-  --shadow-sm: 0 1px 3px rgba(47, 62, 70, 0.08);
-  --shadow-md: 0 4px 16px rgba(47, 62, 70, 0.10);
-  --shadow-lg: 0 12px 40px rgba(47, 62, 70, 0.18);
-  --shadow-amber: 0 4px 16px rgba(82, 121, 111, 0.30);
-  --shadow-coral: 0 4px 16px rgba(82, 121, 111, 0.30);
+  /* Cienie — Aero glass shadow */
+  --shadow-sm: 0 1px 3px rgba(0, 40, 100, 0.10);
+  --shadow-md: 0 4px 16px rgba(0, 40, 100, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 40, 100, 0.20);
+  --shadow-amber: 0 4px 16px rgba(51, 153, 255, 0.35);
+  --shadow-coral: 0 4px 16px rgba(51, 153, 255, 0.35);
+
+  /* Aero Glass extras */
+  --glass-blur: 12px;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.55);
+  --glass-shine: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.02) 100%);
 
   /* Transitions */
   --t-fast: 0.12s ease;
@@ -154,7 +159,8 @@ html {
 
 body {
   font-family: var(--font);
-  background: var(--bg);
+  background: linear-gradient(180deg, #3A7BD5 0%, #6CB4EE 40%, #B4D6F0 70%, #D4E4F7 100%);
+  background-attachment: fixed;
   color: var(--text);
   min-height: 100vh;
   min-height: 100dvh;
@@ -163,6 +169,11 @@ body {
   overflow-x: hidden;
   position: relative;
   transition: background var(--t-mid), color var(--t-mid);
+}
+
+/* Aero Glass — dark mode wyłącza gradient */
+[data-theme="dark"] body {
+  background: var(--bg);
 }
 
 /* ── Typography ── */

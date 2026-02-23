@@ -6,7 +6,7 @@
     flex-direction: column;
     min-height: 100vh;
     min-height: 100dvh;
-    background: var(--bg);
+    background: transparent;
     animation: fadeIn 0.18s ease;
 }
 
