@@ -55,6 +55,15 @@ export default function QuickTaskSheet({ onClose }: Props) {
         defaultProject ? String(defaultProject.id) : ''
     );
 
+    // Synchronizuj domyślny projekt gdy allProjects się załaduje lub zmieni
+    useEffect(() => {
+        const dp = getDefaultProject(allProjects);
+        if (dp && (!selectedProjectId || !activeProjects.find(p => String(p.id) === selectedProjectId))) {
+            setSelectedProjectId(String(dp.id));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [allProjects]);
+
     const selectedProject = activeProjects.find(p => String(p.id) === selectedProjectId) || defaultProject;
 
     useEffect(() => {
