@@ -48,12 +48,12 @@ export default function App() {
       // Swipe right → previous tab
       if (mainRef.current) mainRef.current.setAttribute('data-slide', 'right');
       navigate(SWIPE_TABS[idx - 1]);
-      setTimeout(() => mainRef.current?.removeAttribute('data-slide'), 250);
+      setTimeout(() => mainRef.current?.removeAttribute('data-slide'), 350);
     } else if (dx < 0 && idx < SWIPE_TABS.length - 1) {
       // Swipe left → next tab
       if (mainRef.current) mainRef.current.setAttribute('data-slide', 'left');
       navigate(SWIPE_TABS[idx + 1]);
-      setTimeout(() => mainRef.current?.removeAttribute('data-slide'), 250);
+      setTimeout(() => mainRef.current?.removeAttribute('data-slide'), 350);
     }
   }, [currentScreen, navigate]);
 

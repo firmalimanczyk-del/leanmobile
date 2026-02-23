@@ -8,7 +8,7 @@ import TabBar from '@/components/ui/TabBar';
 import styles from './Screen.module.css';
 
 export default function ProjectsScreen() {
-    const { allProjects, setAllProjects, navigate, setCurrentProject, setCurrentTasks, loadingProjects, setLoadingProjects, myUserName, clearUser } = useAppStore();
+    const { allProjects, setAllProjects, navigate, setCurrentProject, setCurrentTasks, loadingProjects, setLoadingProjects, myUserName, clearUser, theme, toggleTheme } = useAppStore();
 
     const getInitials = () => myUserName?.split(' ').map((w: string) => w[0] || '').join('').toUpperCase().slice(0, 2) || '?';
 
@@ -39,7 +39,17 @@ export default function ProjectsScreen() {
         <div className={styles.screen}>
             <header className={styles.header}>
                 <h1 className={styles.headerTitle}>Projekty</h1>
+                <button
+                    id="projects-theme"
+                    className={styles.hbtn}
+                    onClick={toggleTheme}
+                    aria-label={theme === 'dark' ? 'Tryb jasny' : 'Tryb ciemny'}
+                    title={theme === 'dark' ? 'Tryb jasny' : 'Tryb ciemny'}
+                >
+                    {theme === 'dark' ? '☀️' : '🌙'}
+                </button>
                 <button id="projects-refresh" className={styles.hbtn} onClick={load} disabled={loadingProjects} aria-label="Odśwież">🔄</button>
+                <button id="projects-add" className={`${styles.hbtn} ${styles.hbtnPrimary}`} onClick={() => navigate('addTask')} aria-label="Dodaj zadanie">+</button>
                 <button id="projects-avatar" className={styles.avatarBtn} onClick={() => { if (confirm(`Wylogować ${myUserName}?`)) { clearUser(); showToast('Wylogowano'); } }}>{getInitials()}</button>
             </header>
 
