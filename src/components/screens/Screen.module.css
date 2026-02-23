@@ -1097,3 +1097,59 @@
     font-size: 14px;
     color: var(--text-2);
 }
+
+/* ── Kanban Board ── */
+.kanbanBoard {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    gap: 16px;
+    padding: 0 16px 24px;
+    flex: 1;
+    min-height: 0;
+    scroll-padding: 0 16px;
+    -webkit-overflow-scrolling: touch;
+    align-items: flex-start;
+}
+
+.kanbanBoard::-webkit-scrollbar {
+    display: none;
+}
+
+.kCol {
+    scroll-snap-align: start;
+    width: 85vw;
+    max-width: 320px;
+    flex-shrink: 0;
+    background: var(--card-2);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+}
+
+.kHeader {
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+    border-top-left-radius: var(--r-lg);
+    border-top-right-radius: var(--r-lg);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.kList {
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}

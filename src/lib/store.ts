@@ -43,6 +43,7 @@ interface AppState {
     // ── Aktualnie wyświetlane/edytowane
     currentDetailTask: LtTask | null;
     editingCommentId: string | null;
+    projectTasksView: 'list' | 'board';
 
     // ── Nawigacja
     currentScreen: Screen;
@@ -74,6 +75,7 @@ interface AppState {
     setProjectUpdates: (updates: LtComment[]) => void;
     setCurrentDetailTask: (task: LtTask | null) => void;
     setEditingCommentId: (id: string | null) => void;
+    setProjectTasksView: (v: 'list' | 'board') => void;
 
     // ── Loading setters
     setLoadingTodos: (v: boolean) => void;
@@ -100,6 +102,11 @@ function loadUser() {
 function loadTheme(): 'light' | 'dark' {
     if (typeof window === 'undefined') return 'light';
     return (localStorage.getItem('lt_theme') as 'light' | 'dark') || 'light';
+}
+
+function loadTasksView(): 'list' | 'board' {
+    if (typeof window === 'undefined') return 'list';
+    return (localStorage.getItem('lt_tasks_view') as 'list' | 'board') || 'list';
 }
 
 // ─── Store ───────────────────────────────────────────────────
@@ -130,6 +137,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     currentDetailTask: null,
     editingCommentId: null,
+    projectTasksView: loadTasksView(),
 
     currentScreen: (saved.id ? 'todos' : 'login') as Screen,
     previousScreen: 'todos' as Screen,
@@ -179,6 +187,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     setProjectUpdates: (updates) => set({ projectUpdates: updates }),
     setCurrentDetailTask: (task) => set({ currentDetailTask: task }),
     setEditingCommentId: (id) => set({ editingCommentId: id }),
+    setProjectTasksView: (v) => {
+        localStorage.setItem('lt_tasks_view', v);
+        set({ projectTasksView: v });
+    },
 
     // ── Loading
     setLoadingTodos: (v) => set({ loadingTodos: v }),

@@ -1,9 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { apiGetProjectTasks, PROJECT_STATUS_LABEL, fmtDateTime, fmtDate } from '@/lib/leantime-api';
+import type { LtTask } from '@/lib/leantime-api';
 import { showToast } from '@/components/ui/Toast';
+import StatusSheet from '@/components/ui/StatusSheet';
+import KanbanBoard from './KanbanBoard';
 import styles from './Screen.module.css';
 
 type UpdateLike = { status?: string | number; date?: string; text?: string; description?: string; comment?: string };
@@ -42,7 +45,14 @@ function StatusBanner({ latest, onHistory }: { latest: UpdateLike | null | undef
 }
 
 export default function TasksScreen() {
-    const { currentProject, currentTasks, setCurrentTasks, statusList, navigate, setCurrentDetailTask, setDetailReturn, projectUpdates, setProjectUpdates, loadingTasks, setLoadingTasks } = useAppStore();
+    const {
+        currentProject, currentTasks, setCurrentTasks, statusList,
+        navigate, setCurrentDetailTask, setDetailReturn, projectUpdates,
+        setProjectUpdates, loadingTasks, setLoadingTasks,
+        projectTasksView, setProjectTasksView
+    } = useAppStore();
+
+    const [sheetTask, setSheetTask] = useState<LtTask | null>(null);
 
     const load = async () => {
         if (!currentProject || loadingTasks) return;
@@ -93,21 +103,41 @@ export default function TasksScreen() {
                     <h1 className={styles.headerTitle}>{projName}</h1>
                     <span className={styles.headerSub}>{currentTasks.length} zadań</span>
                 </div>
-                <button id="tasks-refresh" className={styles.hbtn} onClick={load} disabled={loadingTasks}>🔄</button>
+                <button
+                    id="tasks-view-toggle"
+                    className={styles.hbtn}
+                    onClick={() => setProjectTasksView(projectTasksView === 'list' ? 'board' : 'list')}
+                    title={projectTasksView === 'list' ? 'Widok Kanban' : 'Widok Listy'}
+                >
+                    {projectTasksView === 'list' ? '📊' : '📋'}
+                </button>
                 <button id="tasks-add" className={`${styles.hbtn} ${styles.hbtnPrimary}`} onClick={() => navigate('addTask')}>+</button>
             </header>
 
-            <div className={styles.list}>
-                <StatusBanner latest={latest} onHistory={goUpdates} />
+            <div className={`${styles.list} ${projectTasksView === 'board' ? styles.noPadBottom : ''}`} style={projectTasksView === 'board' ? { padding: 0 } : {}}>
+                <div style={{ padding: projectTasksView === 'board' ? '16px 16px 0' : 0 }}>
+                    <StatusBanner latest={latest} onHistory={goUpdates} />
+                </div>
 
                 {loadingTasks && <div className={styles.empty}><div className={styles.spinner} /><br />Ładowanie zadań...</div>}
+
                 {!loadingTasks && !currentTasks.length && (
                     <div className={styles.empty}>
                         Brak zadań<br />
                         <button className={`${styles.btn} ${styles.btnPrimary}`} style={{ width: 'auto', padding: '10px 24px', marginTop: 16 }} onClick={() => navigate('addTask')}>Dodaj zadanie</button>
                     </div>
                 )}
-                {!loadingTasks && keys.map(s => {
+
+                {!loadingTasks && currentTasks.length > 0 && projectTasksView === 'board' && (
+                    <KanbanBoard
+                        tasks={currentTasks}
+                        statusList={statusList}
+                        onTaskClick={showTask}
+                        onTaskPress={(t) => setSheetTask(t)}
+                    />
+                )}
+
+                {!loadingTasks && currentTasks.length > 0 && projectTasksView === 'list' && keys.map(s => {
                     const tasks = grouped[s]; if (!tasks) return null;
                     const st = statusMap[s] || { l: `Status ${s}`, c: '#94a3b8' };
                     return (
@@ -137,6 +167,10 @@ export default function TasksScreen() {
                     );
                 })}
             </div>
+
+            {sheetTask && (
+                <StatusSheet task={sheetTask as never} statusList={statusList} onClose={() => setSheetTask(null)} />
+            )}
         </div>
     );
 }
