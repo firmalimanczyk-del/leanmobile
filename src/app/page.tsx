@@ -25,6 +25,7 @@ export default function App() {
   // ── Swipe handling ──
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
+  const mainRef = useRef<HTMLElement>(null);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -44,11 +45,15 @@ export default function App() {
     if (idx === -1) return;
 
     if (dx > 0 && idx > 0) {
-      // Swipe right → previous tab (Zadania)
+      // Swipe right → previous tab
+      if (mainRef.current) mainRef.current.setAttribute('data-slide', 'right');
       navigate(SWIPE_TABS[idx - 1]);
+      setTimeout(() => mainRef.current?.removeAttribute('data-slide'), 250);
     } else if (dx < 0 && idx < SWIPE_TABS.length - 1) {
-      // Swipe left → next tab (Projekty)
+      // Swipe left → next tab
+      if (mainRef.current) mainRef.current.setAttribute('data-slide', 'left');
       navigate(SWIPE_TABS[idx + 1]);
+      setTimeout(() => mainRef.current?.removeAttribute('data-slide'), 250);
     }
   }, [currentScreen, navigate]);
 
@@ -84,7 +89,7 @@ export default function App() {
   }, [myUserId]);
 
   return (
-    <main onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <main ref={mainRef} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {currentScreen === 'login' && <LoginScreen />}
       {currentScreen === 'todos' && <TodosScreen />}
       {currentScreen === 'projects' && <ProjectsScreen />}

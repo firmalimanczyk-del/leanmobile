@@ -291,6 +291,39 @@ select {
   }
 }
 
+/* ── Swipe tab slide transitions ── */
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+main[data-slide="left"]> :first-child {
+  animation: slideInFromRight 0.22s ease-out;
+}
+
+main[data-slide="right"]> :first-child {
+  animation: slideInFromLeft 0.22s ease-out;
+}
+
 /* ── Scrollbar ── */
 ::-webkit-scrollbar {
   width: 3px;
