@@ -317,16 +317,17 @@ function guessColor(cls: string, idx: number): string {
     return FALLBACK_COLORS[idx % FALLBACK_COLORS.length];
 }
 
-// ── Fallback lista statusów (musi odpowiadać Leantime statusListSeed) ──
-// WAŻNE: Archiwizowane = -1 (NIE 5!) — potwierdzone kodem źródłowym Leantime 3.x
+// ── Fallback lista statusów (bez Zarchiwizowane — nie wyświetlamy w LeanMobile) ──
 export const FALLBACK_STATUS_LIST: LtStatusLabel[] = [
     { v: '3', l: 'Nowe', c: '#2563EB' },
     { v: '1', l: 'Zablokowane', c: '#DC3545' },
     { v: '4', l: 'W toku', c: '#F59E0B' },
     { v: '2', l: 'Oczekuje na akceptację', c: '#F5A623' },
     { v: '0', l: 'Zrobione', c: '#28A745' },
-    { v: '-1', l: 'Zarchiwizowane', c: '#6B7280' },
 ];
+
+// Statusy ukryte w UI (nie wyświetlamy w StatusSheet, Kanban itp.)
+const HIDDEN_STATUSES = new Set(['-1']);
 
 // Statusy uznawane za "zakończone" — Leantime statusType DONE = 0 (done) i -1 (archived)
 export const DONE_STATUSES = new Set(['0', '-1']);
@@ -389,8 +390,10 @@ export async function apiGetStatusLabels(): Promise<LtStatusLabel[]> {
                     list.push({ v: String(code), l: label, c: guessColor(cls, i) });
                 });
             }
-            console.log('[STATUS-DEBUG] final list:', JSON.stringify(list));
-            if (list.length) return list;
+            // Odfiltruj statusy ukryte w LeanMobile (np. Zarchiwizowane)
+            const visible = list.filter(s => !HIDDEN_STATUSES.has(s.v));
+            console.log('[STATUS-DEBUG] final list:', JSON.stringify(visible));
+            if (visible.length) return visible;
         }
     } catch (e) {
         console.error('[STATUS-DEBUG] apiGetStatusLabels FAILED:', e);
@@ -444,8 +447,8 @@ export async function apiGetAllTasks(): Promise<LtTask[]> {
         result = toArr<LtTask>(d);
     }
 
-    // Filtruj milestony — Leantime PC wyświetla je osobno
-    return result.filter(t => t.type !== 'milestone');
+    // Filtruj milestony i zarchiwizowane zadania
+    return result.filter(t => t.type !== 'milestone' && !HIDDEN_STATUSES.has(String(t.status)));
 }
 
 export async function apiGetProjectTasks(projectId: string | number): Promise<LtTask[]> {
@@ -457,9 +460,9 @@ export async function apiGetProjectTasks(projectId: string | number): Promise<Lt
         const d = await rpc('leantime.rpc.tickets.getAll', { projectId });
         arr = toArr<LtTask>(d);
     }
-    // Filtruj milestony — Leantime PC wyświetla je osobno, nie na liście zadań
-    const filtered = arr.filter(t => t.type !== 'milestone');
-    console.log(`[TASKS-DEBUG] Project ${projectId}: ${arr.length} total, ${filtered.length} after filtering milestones. Status values:`,
+    // Filtruj milestony i zarchiwizowane zadania
+    const filtered = arr.filter(t => t.type !== 'milestone' && !HIDDEN_STATUSES.has(String(t.status)));
+    console.log(`[TASKS-DEBUG] Project ${projectId}: ${arr.length} total, ${filtered.length} after filtering. Status values:`,
         filtered.map(t => ({ id: t.id, headline: t.headline?.substring(0, 40), status: t.status, type: t.type })));
     return filtered;
 }

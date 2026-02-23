@@ -4,7 +4,6 @@ export const TASK_STATUS_MAP: Record<string, { label: string; color: string; bgC
     '1': { label: 'Zablokowane', color: 'text-red-600', bgColor: 'bg-red-50', borderColor: 'border-red-200' },
     '2': { label: 'Oczekuje na akceptację', color: 'text-orange-600', bgColor: 'bg-orange-50', borderColor: 'border-orange-200' },
     '0': { label: 'Zakończone', color: 'text-green-600', bgColor: 'bg-green-50', borderColor: 'border-green-200' },
-    '-1': { label: 'Zarchiwizowane', color: 'text-gray-600', bgColor: 'bg-gray-50', borderColor: 'border-gray-200' },
 };
 
 export const TASK_PRIORITY_MAP: Record<string, { label: string; color: string }> = {
