@@ -11,72 +11,77 @@
 }
 
 /* ══════════════════════════════════════════════
-   LIGHT MODE — Windows 11 Fluent UI
-   Czyste, jasne, Mica-like surfaces
+   LIGHT MODE — LimHub (Specyfikacja UI)
+   Czysty design, pomarańczowe akcenty (#FF6B35)
    ══════════════════════════════════════════════ */
 :root {
-  --font: 'Segoe UI Variable', 'Segoe UI', 'Inter', -apple-system, Roboto, sans-serif;
+  --font: 'Calibri', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-  /* Tła — Windows 11 Mica */
-  --bg: #F3F3F3;
+  /* Tła */
+  --bg: #F5F5F5;
   --card: #FFFFFF;
-  --card-2: #F9F9F9;
+  --card-2: #F5F5F5;
 
-  /* Obramowania — subtelne Win11 */
-  --border: #E5E5E5;
+  /* Obramowania */
+  --border: #E0E0E0;
 
-  /* Tekst — Fluent neutral */
-  --text: #1A1A1A;
-  --text-2: #424242;
-  --text-3: #707070;
-  --text-4: #A0A0A0;
+  /* Tekst */
+  --text: #333333;
+  --text-2: #666666;
+  --text-3: #666666;
+  --text-4: #999999;
 
-  /* Dark surfaces (header/nav) — Win11 ciemny pasek */
-  --dark: #202020;
-  --dark-2: #2D2D2D;
-  --dark-3: #383838;
-  --dark-4: #444444;
-  --dark-border: rgba(255, 255, 255, 0.08);
-  --dark-border-strong: rgba(255, 255, 255, 0.14);
+  /* Dark surfaces (np. top header w aplikacji) */
+  --dark: #FF6B35;
+  /* Primary Orange w Headerze */
+  --dark-2: #E55A2B;
+  --dark-3: #CC4E24;
+  --dark-4: #B3441F;
+  --dark-border: rgba(255, 255, 255, 0.2);
+  --dark-border-strong: rgba(255, 255, 255, 0.3);
 
   /* Tła kart statusowych */
-  --overdue-bg: #FDE8E8;
-  --thisweek-bg: #FFF4DB;
-  --later-bg: #F0EBFA;
+  --overdue-bg: #FFCDD2;
+  /* L4 / Niedziela (red) */
+  --thisweek-bg: #FFF3E0;
+  /* Czekajace (żółty/pomarańcz) */
+  --later-bg: #E8F5E9;
+  /* Urlop / Sukces (green) */
 
-  /* Akcenty — Olive Green (#6B8E23) */
-  --coral: #6B8E23;
-  --coral-2: #82A332;
-  --coral-glow: rgba(107, 142, 35, 0.22);
-  --blue: #6B8E23;
-  --blue-glow: rgba(107, 142, 35, 0.18);
+  /* Akcenty — Primary Orange (#FF6B35) */
+  --coral: #FF6B35;
+  --coral-2: #E55A2B;
+  --coral-glow: rgba(255, 107, 53, 0.22);
+  --blue: #FF6B35;
+  --blue-glow: rgba(255, 107, 53, 0.18);
 
   /* Wstecz-compat aliasy */
   --amber: var(--coral);
   --amber-2: var(--coral-2);
-  --amber-bg: rgba(107, 142, 35, 0.08);
+  --amber-bg: rgba(255, 107, 53, 0.08);
   --amber-glow: var(--coral-glow);
 
-  /* Statusy — Fluent colors */
-  --red: #D13438;
-  --yellow: #CA8A04;
-  --green: #107C10;
-  --purple: #8764B8;
-  --orange: #DA7A0F;
+  /* Statusy */
+  --red: #EF5350;
+  --yellow: #FFB300;
+  --green: #4CAF50;
+  --purple: #B0BEC5;
+  /* Gray zamiast fioletowego */
+  --orange: #FF6B35;
 
-  /* Radius — Win11 rounded (8px standard) */
+  /* Radius (LimHub Spec) */
   --r-sm: 4px;
   --r-md: 8px;
   --r-lg: 12px;
   --r-xl: 16px;
   --r-full: 9999px;
 
-  /* Cienie — Fluent elevation */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.10);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.14);
-  --shadow-amber: 0 2px 12px rgba(107, 142, 35, 0.25);
-  --shadow-coral: 0 2px 12px rgba(107, 142, 35, 0.25);
+  /* Cienie (LimHub Spec) */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.22);
+  --shadow-amber: 0 4px 16px rgba(255, 107, 53, 0.25);
+  --shadow-coral: 0 4px 16px rgba(255, 107, 53, 0.25);
 
   /* Transitions */
   --t-fast: 0.10s ease;
