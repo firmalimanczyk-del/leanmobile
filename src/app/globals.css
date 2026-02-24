@@ -44,17 +44,17 @@
   --thisweek-bg: #FFF4DB;
   --later-bg: #F0EBFA;
 
-  /* Akcenty — Fluent Blue (#0078D4) */
-  --coral: #0078D4;
-  --coral-2: #1A8CD8;
-  --coral-glow: rgba(0, 120, 212, 0.22);
-  --blue: #0078D4;
-  --blue-glow: rgba(0, 120, 212, 0.18);
+  /* Akcenty — Olive Green (#6B8E23) */
+  --coral: #6B8E23;
+  --coral-2: #82A332;
+  --coral-glow: rgba(107, 142, 35, 0.22);
+  --blue: #6B8E23;
+  --blue-glow: rgba(107, 142, 35, 0.18);
 
   /* Wstecz-compat aliasy */
   --amber: var(--coral);
   --amber-2: var(--coral-2);
-  --amber-bg: rgba(0, 120, 212, 0.08);
+  --amber-bg: rgba(107, 142, 35, 0.08);
   --amber-glow: var(--coral-glow);
 
   /* Statusy — Fluent colors */
@@ -75,8 +75,8 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.10);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.14);
-  --shadow-amber: 0 2px 12px rgba(0, 120, 212, 0.25);
-  --shadow-coral: 0 2px 12px rgba(0, 120, 212, 0.25);
+  --shadow-amber: 0 2px 12px rgba(107, 142, 35, 0.25);
+  --shadow-coral: 0 2px 12px rgba(107, 142, 35, 0.25);
 
   /* Transitions */
   --t-fast: 0.10s ease;
@@ -120,15 +120,15 @@
   --thisweek-bg: rgba(202, 138, 4, 0.10);
   --later-bg: rgba(135, 100, 184, 0.10);
 
-  /* Akcenty — Seda blue-gray */
-  --coral: #4B7BEC;
-  --coral-2: #6C96F0;
-  --coral-glow: rgba(75, 123, 236, 0.25);
-  --blue: #4B7BEC;
-  --blue-glow: rgba(75, 123, 236, 0.20);
+  /* Akcenty — Seda Olive (#84A942) */
+  --coral: #84A942;
+  --coral-2: #A1C167;
+  --coral-glow: rgba(132, 169, 66, 0.25);
+  --blue: #84A942;
+  --blue-glow: rgba(132, 169, 66, 0.20);
   --amber: var(--coral);
   --amber-2: var(--coral-2);
-  --amber-bg: rgba(75, 123, 236, 0.12);
+  --amber-bg: rgba(132, 169, 66, 0.12);
 
   /* Statusy — Seda muted */
   --red: #E06C75;
@@ -141,8 +141,8 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.40);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.55);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.70);
-  --shadow-amber: 0 4px 16px rgba(75, 123, 236, 0.35);
-  --shadow-coral: 0 4px 16px rgba(75, 123, 236, 0.35);
+  --shadow-amber: 0 4px 16px rgba(132, 169, 66, 0.35);
+  --shadow-coral: 0 4px 16px rgba(132, 169, 66, 0.35);
 }
 
 /* ── Base ── */
