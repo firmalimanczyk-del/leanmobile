@@ -4,12 +4,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import webpush from 'web-push';
 
-const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
-const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_PUBLIC = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const VAPID_PRIVATE = (process.env.VAPID_PRIVATE_KEY || '').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:projekty@limanczyk.pl';
 
 if (VAPID_PUBLIC && VAPID_PRIVATE) {
-    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
+    try {
+        webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
+    } catch (err) {
+        console.error("Failed to set Vapid details:", err);
+    }
 }
 
 export async function POST(req: NextRequest) {
