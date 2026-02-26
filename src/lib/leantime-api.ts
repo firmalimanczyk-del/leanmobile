@@ -206,6 +206,13 @@ export function getCommentAuthor(c: LtComment, allUsers: LtUser[]): string {
     return '';
 }
 
+// ─── AUTH_EXPIRED handler ────────────────────────────────────
+// Wywoływany gdy proxy zwróci 403 (AUTH_EXPIRED) — wylogowuje użytkownika
+let _onAuthExpired: (() => void) | null = null;
+export function setAuthExpiredHandler(fn: () => void) {
+    _onAuthExpired = fn;
+}
+
 // ─── JSON-RPC core ───────────────────────────────────────────
 
 async function rpc(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
@@ -232,8 +239,14 @@ async function rpc(method: string, params: Record<string, unknown> = {}): Promis
             }
             throw new Error('Zbyt wiele zapytań — spróbuj ponownie za chwilę');
         }
-        // Sprawdź typ odpowiedzi zanim próbujemy JSON.parse
-        const contentType = r.headers.get('content-type') || '';
+
+        // 403 = klucz API wygasł → wyloguj i przerwij
+        if (r.status === 403) {
+            console.error(`[rpc] 403 Forbidden for ${method} — sesja/klucz wygasł`);
+            if (_onAuthExpired) _onAuthExpired();
+            throw new Error('Sesja wygasła — zaloguj się ponownie');
+        }
+
         const raw = await r.text();
         if (!r.ok) {
             throw new Error(`HTTP ${r.status}: ${raw.substring(0, 200)}`);
@@ -248,7 +261,14 @@ async function rpc(method: string, params: Record<string, unknown> = {}): Promis
         } catch {
             throw new Error(`Nieprawidłowa odpowiedź JSON: ${raw.substring(0, 100)}`);
         }
-        if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
+        if (d.error) {
+            // AUTH_EXPIRED z proxy
+            if (d.error.message === 'AUTH_EXPIRED') {
+                if (_onAuthExpired) _onAuthExpired();
+                throw new Error('Sesja wygasła — zaloguj się ponownie');
+            }
+            throw new Error(d.error.message || JSON.stringify(d.error));
+        }
         return d.result;
     }
 }

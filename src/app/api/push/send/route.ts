@@ -4,21 +4,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import webpush from 'web-push';
 
-const VAPID_PUBLIC = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-const VAPID_PRIVATE = (process.env.VAPID_PRIVATE_KEY || '').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:projekty@limanczyk.pl';
+// Lazy init — NIE wywołujemy setVapidDetails() na poziomie modułu!
+// Vercel podczas "Collecting page data" importuje moduł bez env vars → build error.
+let vapidReady = false;
 
-if (VAPID_PUBLIC && VAPID_PRIVATE) {
+function ensureVapid(): boolean {
+    if (vapidReady) return true;
+    const pub = (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const priv = (process.env.VAPID_PRIVATE_KEY || '').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const subject = process.env.VAPID_SUBJECT || 'mailto:projekty@limanczyk.pl';
+    if (!pub || !priv) return false;
     try {
-        webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
+        webpush.setVapidDetails(subject, pub, priv);
+        vapidReady = true;
+        return true;
     } catch (err) {
-        console.error("Failed to set Vapid details:", err);
+        console.error('[push] Failed to set VAPID details:', err);
+        return false;
     }
 }
 
 export async function POST(req: NextRequest) {
     try {
-        if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
+        if (!ensureVapid()) {
             return NextResponse.json({ error: 'VAPID keys not configured' }, { status: 500 });
         }
 

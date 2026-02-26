@@ -106,12 +106,15 @@ export async function POST(req: NextRequest) {
             console.log(`[auth/login] User: ${email} | hasApiKey: ${!!personalApiKey}`);
 
             // Ustaw cookie z osobistym kluczem API (HttpOnly - niewidoczny dla JS)
+            // Max-Age=604800 = 7 dni (zamiast 24h — zapobiega fallback na globalny klucz)
+            const isProduction = process.env.NODE_ENV === 'production';
             const cookieParts = [
                 `lt_user_api_key=${encodeURIComponent(personalApiKey)}`,
                 'Path=/',
                 'HttpOnly',
                 'SameSite=Lax',
-                'Max-Age=86400',
+                'Max-Age=604800',
+                ...(isProduction ? ['Secure'] : []),
             ];
             headers.append('set-cookie', cookieParts.join('; '));
 
@@ -123,7 +126,8 @@ export async function POST(req: NextRequest) {
                     'Path=/',
                     'HttpOnly',
                     'SameSite=Lax',
-                    'Max-Age=86400',
+                    'Max-Age=604800',
+                    ...(isProduction ? ['Secure'] : []),
                 ];
                 headers.append('set-cookie', sessParts.join('; '));
             }

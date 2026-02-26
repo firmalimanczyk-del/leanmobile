@@ -81,7 +81,15 @@ export default function TodosScreen() {
             });
             setMyTodos(mine);
         } catch (e) {
-            showToast(e instanceof Error ? e.message : 'Błąd', 'error');
+            const msg = e instanceof Error ? e.message : 'Błąd';
+            // Nie pokazuj surowego JSON — przyjazny komunikat
+            if (msg.includes('AUTH_EXPIRED') || msg.includes('Sesja wygasła')) {
+                showToast('Sesja wygasła — zaloguj się ponownie', 'error');
+            } else if (msg.includes('HTTP 5') || msg.includes('HTTP 4')) {
+                showToast('Problem z połączeniem — spróbuj ponownie', 'error');
+            } else {
+                showToast(msg.length > 80 ? msg.substring(0, 80) + '…' : msg, 'error');
+            }
         } finally {
             setLoadingTodos(false);
         }

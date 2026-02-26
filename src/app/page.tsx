@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
-import { apiGetStatusLabels, apiGetProjects, apiGetUsers, FALLBACK_STATUS_LIST } from '@/lib/leantime-api';
+import { apiGetStatusLabels, apiGetProjects, apiGetUsers, FALLBACK_STATUS_LIST, setAuthExpiredHandler } from '@/lib/leantime-api';
 
 import LoginScreen from '@/components/screens/LoginScreen';
 import TodosScreen from '@/components/screens/TodosScreen';
@@ -56,6 +56,15 @@ export default function App() {
       setTimeout(() => mainRef.current?.removeAttribute('data-slide'), 350);
     }
   }, [currentScreen, navigate]);
+
+  // ── Auto-wylogowanie przy wygaśnięciu klucza API (403) ──
+  const clearUser = useAppStore((s) => s.clearUser);
+  useEffect(() => {
+    setAuthExpiredHandler(() => {
+      console.warn('[auth] Klucz API wygasł — automatyczne wylogowanie');
+      clearUser();
+    });
+  }, [clearUser]);
 
   // Zastosuj motyw przy starcie i przy każdej zmianie
   useEffect(() => {

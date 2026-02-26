@@ -64,7 +64,23 @@ export async function POST(req: NextRequest) {
                 );
             }
 
-            // Dla metod odczytu — faktyczny błąd
+            // HTTP 403 = klucz API wygasł lub został odrzucony → sygnalizuj frontendowi
+            if (response.status === 403) {
+                console.error(`[jsonrpc] 403 Forbidden for ${method} — klucz API odrzucony`);
+                return NextResponse.json(
+                    {
+                        jsonrpc: '2.0',
+                        error: {
+                            code: -32003,
+                            message: 'AUTH_EXPIRED',
+                        },
+                        id: body?.id ?? null,
+                    },
+                    { status: 403 }
+                );
+            }
+
+            // Dla metod odczytu — faktyczny błąd serwera
             return NextResponse.json(
                 {
                     jsonrpc: '2.0',
