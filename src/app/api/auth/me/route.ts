@@ -26,12 +26,20 @@ export async function GET(req: NextRequest) {
             params: {},
         };
 
+        // Nagłówki przeglądarkowe — Cloudflare blokuje "gołe" requesty z Vercela
+        const browserHeaders = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7',
+        };
+
         const res = await fetch(`${LEANTIME_URL}/api/jsonrpc`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': API_KEY,
                 Cookie: ltSession,
+                ...browserHeaders,
             },
             body: JSON.stringify(body),
         });
@@ -63,6 +71,7 @@ export async function GET(req: NextRequest) {
                 'Content-Type': 'application/json',
                 'x-api-key': API_KEY,
                 Cookie: ltSession,
+                ...browserHeaders,
             },
             body: JSON.stringify(body2),
         });

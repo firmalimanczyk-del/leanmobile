@@ -43,7 +43,11 @@ export async function POST(req: NextRequest) {
 
         // ── Krok 1: GET strony logowania → sesja + ukryte pola ─────────
         const getRes = await fetch(`${LEANTIME_URL}/auth/login`, {
-            headers: { 'User-Agent': 'LeanMobile/1.0', Accept: 'text/html' },
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7',
+            },
         });
         const html = await getRes.text();
         const sessionFromGet = extractSessionCookie(getRes.headers.get('set-cookie') || '');
@@ -67,8 +71,9 @@ export async function POST(req: NextRequest) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': 'LeanMobile/1.0',
-                Accept: 'text/html,application/xhtml+xml',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7',
                 ...(sessionFromGet ? { Cookie: sessionFromGet } : {}),
             },
             body: formBody,

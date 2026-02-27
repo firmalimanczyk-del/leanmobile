@@ -29,11 +29,16 @@ export async function POST(req: NextRequest) {
         // UWAGA: NIE wysyłamy lt_sess do Leantime!
         // Leantime 3.3.2 bug: x-api-key + session cookie = konflikt auth → HTML response
         // Zamiast tego userId przekazujemy jawnie w params gdzie możliwe.
+        // Nagłówki przeglądarkowe — Cloudflare blokuje "gołe" requesty z datacenter IP (Vercel)
+        // Udajemy przeglądarkę, żeby Cloudflare nie zwracał strony "Just a moment..."
         const response = await fetch(`${LEANTIME_URL}/api/jsonrpc`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'x-api-key': apiKey,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7',
             },
             body: JSON.stringify(body),
         });
